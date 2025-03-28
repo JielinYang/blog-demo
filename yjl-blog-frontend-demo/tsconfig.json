@@ -1,0 +1,19 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.cypress-ct.json"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["vite/client"],
+    "typeRoots": ["node_modules/@types", "src/shims-vue.d.ts"],
+    "composite": true
+  }
+}

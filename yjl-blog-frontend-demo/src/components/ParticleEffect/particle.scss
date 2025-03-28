@@ -1,0 +1,14 @@
+/* components/ParticleEffect/particle.scss */
+
+// 动画定义转移到独立文件
+@keyframes particle-sparkle {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
