@@ -28,10 +28,6 @@
     <el-footer>
       <div class="article-meta">
         <div class="meta-item">
-          <el-icon :size="16"><User /></el-icon>
-          <el-text size="small">{{ article?.authorName || article?.authorId }} </el-text>
-        </div>
-        <div class="meta-item">
           <el-icon :size="16"><Clock /></el-icon>
           <el-text size="small">{{ formatDate(article?.createTime) }} </el-text>
         </div>
@@ -43,6 +39,10 @@
           <el-icon :size="16"><Comment /></el-icon>
           <el-text size="small">{{ article?.commentCount }} </el-text>
         </div>
+        <div class="meta-item">
+          <el-icon :size="16"><Star /></el-icon>
+          <el-text size="small">{{ article?.likeCount }} </el-text>
+        </div>
       </div>
     </el-footer>
   </el-container>
@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
 import { Article } from '@/models/Article'
-import { User, View, Comment, Clock } from '@element-plus/icons-vue'
+import { User, View, Comment, Clock, Star } from '@element-plus/icons-vue'
 
 defineProps<{
   article?: Article
@@ -63,8 +63,19 @@ const getPlainText = (html: string = '') => {
 }
 
 const formatDate = (dateString: string = '') => {
-  const date = new Date(dateString)
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  if (!dateString) return '未知日期'
+
+  try {
+    const date = new Date(dateString)
+    // 检查日期是否有效
+    if (isNaN(date.getTime())) {
+      return '无效日期'
+    }
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  } catch (error) {
+    console.error('日期格式化错误:', error)
+    return '日期错误'
+  }
 }
 
 const getStatusText = (status: number = 0) => {

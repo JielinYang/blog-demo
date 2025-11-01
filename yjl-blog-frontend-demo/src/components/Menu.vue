@@ -34,7 +34,14 @@
     </el-menu-item>
     <el-menu-item style="padding-left: 0.5em">
       <el-dropdown v-if="authStore.isAuthenticated" @command="handleCommand">
-        <el-avatar :size="40" src="@src/assets/img/ipad.png" />
+        <div class="avatar-container">
+          <el-avatar
+            :size="40"
+            fit="cover"
+            src="http://192.168.101.128:19000/blog-images/default_head2.jpg"
+          />
+          <!-- <div class="username-tooltip">{{ authStore.user?.username }}</div> -->
+        </div>
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item command="profile">
@@ -58,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDark, useToggle } from '@vueuse/core'
 import { ElMessage } from 'element-plus'
@@ -72,6 +79,14 @@ const activeIndex = ref('1')
 const handleSelect = (key: string, keyPath: string) => {
   console.log(key, keyPath)
 }
+
+// 组件挂载时初始化用户信息
+onMounted(async () => {
+  // 如果用户已认证但用户信息为空，重新初始化
+  if (authStore.isAuthenticated && !authStore.user) {
+    await authStore.initAuth()
+  }
+})
 
 const input = ref('')
 
@@ -136,5 +151,44 @@ const goToLogin = () => {
 ::v-deep a {
   color: var(--text-color);
   text-decoration: none;
+}
+
+/* 头像容器样式 */
+.avatar-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* 控制头像框内图片尺寸 */
+.avatar-container ::v-deep(.el-avatar img) {
+  width: 50px; /* 图片宽度，略小于头像框 */
+  height: 50px; /* 图片高度，略小于头像框 */
+  object-fit: cover; /* 保持比例覆盖 */
+}
+
+/* 用户名提示框样式 */
+.username-tooltip {
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--el-bg-color-overlay);
+  color: var(--el-text-color-primary);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  border: 1px solid var(--el-border-color);
+  box-shadow: var(--el-box-shadow-light);
+}
+
+/* hover时显示用户名提示框 */
+.avatar-container:hover .username-tooltip {
+  opacity: 1;
+  visibility: visible;
 }
 </style>

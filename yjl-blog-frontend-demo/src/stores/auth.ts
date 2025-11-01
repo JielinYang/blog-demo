@@ -28,8 +28,9 @@ export const useAuthStore = defineStore('auth', () => {
     if (token.value) {
       try {
         const res = await getCurrentUser()
+        console.log('获取用户信息响应:', res.data)
         if (res.success) {
-          user.value = res.data.user
+          user.value = res.data
         } else {
           clearAuth()
         }
@@ -45,28 +46,28 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       isLoading.value = true
       const res = await login(loginForm)
-      
+
       if (res.success) {
         const { user: userData, token: accessToken, refreshToken: newRefreshToken } = res.data
-        
+
         // 保存用户信息和令牌
         user.value = userData
         token.value = accessToken
         refreshTokenValue.value = newRefreshToken
-        
+
         // 持久化存储
         localStorage.setItem('token', accessToken)
         localStorage.setItem('refreshToken', newRefreshToken)
-        
+
         return { success: true }
       } else {
         return { success: false, message: res.message || '登录失败' }
       }
     } catch (error: any) {
       console.error('登录失败:', error)
-      return { 
-        success: false, 
-        message: error.response?.data?.message || error.message || '登录失败，请稍后重试' 
+      return {
+        success: false,
+        message: error.response?.data?.message || error.message || '登录失败，请稍后重试',
       }
     } finally {
       isLoading.value = false
@@ -131,6 +132,6 @@ export const useAuthStore = defineStore('auth', () => {
     doLogin,
     doLogout,
     clearAuth,
-    refreshAccessToken
+    refreshAccessToken,
   }
 })

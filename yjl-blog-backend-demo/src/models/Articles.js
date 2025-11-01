@@ -10,31 +10,40 @@ export class Articles {
   }
 
   constructor({
-    id = null,
+    id,
     title,
     content,
     categoryId,
+    category_id = null, // 兼容数据库字段名
     views = 0,
-    likeCount = 0,
-    commentCount = 0,
+    like_count = 0, // 数据库字段名
+    likeCount = 0, // JavaScript属性名
+    comment_count = 0, // 数据库字段名
+    commentCount = 0, // JavaScript属性名
     status = 0,
     coverUrl = "",
     cover_url = "", // 兼容数据库字段名
-    createTime,
-    updateTime,
+    description = "",
+    is_top = 0,
+    create_time, // 数据库字段名
+    createTime, // JavaScript属性名
+    update_time, // 数据库字段名
+    updateTime, // JavaScript属性名
   }) {
     this.id = id;
     this.title = title;
     this.content = content;
-    this.categoryId = categoryId;
+    this.categoryId = category_id || categoryId; // 优先使用数据库字段名
     this.views = views;
-    this.likeCount = likeCount;
-    this.commentCount = commentCount;
+    this.likeCount = like_count || likeCount; // 优先使用数据库字段名
+    this.commentCount = comment_count || commentCount; // 优先使用数据库字段名
     this.status = status;
     // 优先使用cover_url，如果为空则使用coverUrl
     this.coverUrl = cover_url || coverUrl;
-    this.createTime = createTime;
-    this.updateTime = updateTime;
+    this.description = description;
+    this.is_top = is_top;
+    this.createTime = create_time || createTime; // 优先使用数据库字段名
+    this.updateTime = update_time || updateTime; // 优先使用数据库字段名
   }
 
   async save() {
@@ -138,6 +147,9 @@ export class Articles {
         countQuery += whereClause;
       }
 
+      // 添加排序条件：按更新时间降序排列，最新的在最前面
+      query += " ORDER BY update_time DESC";
+
       query += " LIMIT ? OFFSET ?";
       params.push(limit, offset);
 
@@ -145,7 +157,14 @@ export class Articles {
       const [rows] = await pool.query(query, params);
       const [[{ total }]] = await pool.query(countQuery, countParams);
       
-      const data = Array.isArray(rows) ? rows.map((o) => new Articles(o)) : [];
+      // 处理时间字段映射
+      const data = Array.isArray(rows) ? rows.map((row) => {
+        const article = new Articles(row);
+        // 确保时间字段正确映射
+        article.createTime = Articles.formatDateTime(row.create_time);
+        article.updateTime = Articles.formatDateTime(row.update_time);
+        return article;
+      }) : [];
 
       // 返回标准化成功响应
       return ResponseWrapper.success({
@@ -168,7 +187,7 @@ export class Articles {
     }
     try {
       const [rows] = await pool.query(
-        `SELECT id, title, content, category_id, views, like_count, comment_count, status, cover_url, create_time, update_time
+        `SELECT id, title, content, category_id, views, like_count, comment_count, status, cover_url, description, is_top, create_time, update_time
          FROM articles
          WHERE id = ?`,
         [id]

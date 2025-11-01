@@ -25,30 +25,36 @@ export async function saveArticle(article) {
 // 获取文章列表（带分页和搜索）
 export async function getArticles(req, res) {
   try {
-    const { page = 1, limit = 10, category_id, keyword, status = "published" } = req.query;
-    
+    const {
+      page = 1,
+      limit = 10,
+      category_id,
+      keyword,
+      status = "published",
+    } = req.query;
+
     // 参数验证
     const pageNum = parseInt(page) || 1;
     const limitNum = parseInt(limit) || 10;
-    
+
     if (pageNum < 1 || limitNum < 1) {
       return res.status(400).json(ResponseWrapper.error("分页参数必须为正数"));
     }
 
     // 状态映射
     const statusMap = {
-      "published": 1,
-      "draft": 0,
-      "deleted": 2,
-      "all": null
+      published: 1,
+      draft: 0,
+      deleted: 2,
+      all: null,
     };
-    
+
     const statusValue = statusMap[status] ?? (status ? parseInt(status) : null);
-    
+
     // 使用增强后的Articles模型的getArticles方法
     const result = await Articles.getArticles(
-      pageNum, 
-      limitNum, 
+      pageNum,
+      limitNum,
       category_id ? parseInt(category_id) : null,
       keyword || null,
       statusValue

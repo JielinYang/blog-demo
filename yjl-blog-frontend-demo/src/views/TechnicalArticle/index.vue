@@ -63,25 +63,27 @@ const handleCurrentChange = (newPage: number) => {
   getArticles(newPage, pagination.value.pageSize).then((res) => {
     console.log('文章列表数据:', res.data)
     if (res.data && res.data.articles && res.data.articles.data) {
-      articles.value = res.data.articles.data.map((item: any) => ({
-        id: item.id || 0,
-        title: item.title || '无标题',
-        content: item.content || '',
-        authorId: item.authorId || 0,
-        authorName: item.authorName || '匿名作者',
-        categoryId: item.categoryId || undefined,
-        categoryName: item.categoryName || '未分类',
-        tags: item.tags || [],
-        summary: item.summary || '',
-        coverImage: item.coverUrl || '', // 将coverUrl映射为coverImage
-        views: item.views || 0,
-        likeCount: item.likeCount || 0,
-        commentCount: item.commentCount || 0,
-        status: item.status || 1,
-        isTop: item.isTop || false,
-        createTime: item.createTime || new Date().toISOString(),
-        updateTime: item.updateTime || new Date().toISOString()
-      }))
+      articles.value = res.data.articles.data
+        .map((item: any) => ({
+          id: item.id || 0,
+          title: item.title || '无标题',
+          content: item.content || '',
+          authorId: item.authorId || 0,
+          authorName: item.authorName || '匿名作者',
+          categoryId: item.categoryId || undefined,
+          categoryName: item.categoryName || '未分类',
+          tags: item.tags || [],
+          summary: item.summary || '',
+          coverImage: item.coverUrl || '', // 将coverUrl映射为coverImage
+          views: item.views || 0,
+          likeCount: item.likeCount || 0,
+          commentCount: item.commentCount || 0,
+          status: item.status || 1,
+          isTop: item.isTop || false,
+          createTime: item.createTime || new Date().toISOString(),
+          updateTime: item.updateTime || new Date().toISOString()
+        }))
+        .sort((a, b) => new Date(b.createTime).getTime() - new Date(a.createTime).getTime())
       pagination.value.total = res.data.articles.total
     } else {
       console.error('数据格式错误:', res.data)
@@ -110,25 +112,27 @@ onMounted(() => {
   getArticles(pagination.value.currentPage, pagination.value.pageSize).then((res) => {
     console.log('文章列表数据:', res.data)
     if (res.data && res.data.articles && res.data.articles.data) {
-      articles.value = res.data.articles.data.map((item: any) => ({
-        id: item.id || 0,
-        title: item.title || '无标题',
-        content: item.content || '',
-        authorId: item.authorId || 0,
-        authorName: item.authorName || '匿名作者',
-        categoryId: item.categoryId || undefined,
-        categoryName: item.categoryName || '未分类',
-        tags: item.tags || [],
-        summary: item.summary || '',
-        coverImage: item.coverUrl || '', // 将coverUrl映射为coverImage
-        views: item.views || 0,
-        likeCount: item.likeCount || 0,
-        commentCount: item.commentCount || 0,
-        status: item.status || 1,
-        isTop: item.isTop || false,
-        createTime: item.createTime || new Date().toISOString(),
-        updateTime: item.updateTime || new Date().toISOString()
-      }))
+      articles.value = res.data.articles.data
+        .map((item: any) => ({
+          id: item.id || 0,
+          title: item.title || '无标题',
+          content: item.content || '',
+          authorId: item.authorId || 0,
+          authorName: item.authorName || '匿名作者',
+          categoryId: item.categoryId || undefined,
+          categoryName: item.categoryName || '未分类',
+          tags: item.tags || [],
+          summary: item.summary || '',
+          coverImage: item.coverUrl || '', // 将coverUrl映射为coverImage
+          views: item.views || 0,
+          likeCount: item.likeCount || 0,
+          commentCount: item.commentCount || 0,
+          status: item.status || 1,
+          isTop: item.isTop || false,
+          createTime: item.createTime || new Date().toISOString(),
+          updateTime: item.updateTime || new Date().toISOString()
+        }))
+        .sort((a, b) => new Date(b.createTime).getTime() - new Date(a.createTime).getTime())
       pagination.value.total = res.data.articles.total
     } else {
       console.error('数据格式错误:', res.data)
