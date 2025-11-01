@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "esnext",
+    "allowJs": true,
+    "checkJs": false, // 禁用JavaScript文件的类型检查
+    "noEmit": true, // 不生成输出文件
+    "skipLibCheck": true, // 跳过库文件检查
+    "strict": false, // 禁用所有严格类型检查选项
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": false,
+    "resolveJsonModule": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}

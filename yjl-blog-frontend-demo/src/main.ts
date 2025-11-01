@@ -10,6 +10,7 @@ import router from './router'
 import ElementPlus from 'element-plus'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import 'element-plus/theme-chalk/dark/css-vars.css'
+import 'element-plus/theme-chalk/src/message.scss'
 
 // api测试
 import { getTest } from './apis/testApi'

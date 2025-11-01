@@ -73,7 +73,6 @@ export default function useParticleGenerator() {
   }
 
   const initParticles = (containerRef: { value: HTMLElement | null }) => {
-    console.log(containerRef.value)
     if (containerRef.value) {
       container.value = containerRef.value
       if (container.value) {

@@ -33,14 +33,40 @@
       />
     </el-menu-item>
     <el-menu-item style="padding-left: 0.5em">
-      <el-avatar :size="40" src="@src/assets/img/ipad.png" />
+      <el-dropdown v-if="authStore.isAuthenticated" @command="handleCommand">
+        <el-avatar :size="40" src="@src/assets/img/ipad.png" />
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item command="profile">
+              <el-icon><User /></el-icon>
+              <span>{{ authStore.user?.username }}</span>
+            </el-dropdown-item>
+            <el-dropdown-item command="write" v-if="authStore.isAdmin">
+              <el-icon><Edit /></el-icon>
+              <span>写文章</span>
+            </el-dropdown-item>
+            <el-dropdown-item divided command="logout">
+              <el-icon><SwitchButton /></el-icon>
+              <span>退出登录</span>
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+      <el-button v-else @click="goToLogin" type="primary" size="small">登录</el-button>
     </el-menu-item>
   </el-menu>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useDark, useToggle } from '@vueuse/core'
+import { ElMessage } from 'element-plus'
+import { User, Edit, SwitchButton } from '@element-plus/icons-vue'
+import { useAuthStore } from '@/stores/auth'
+
+const router = useRouter()
+const authStore = useAuthStore()
 
 const activeIndex = ref('1')
 const handleSelect = (key: string, keyPath: string) => {
@@ -52,6 +78,28 @@ const input = ref('')
 // 切换暗黑模式
 const isDark = useDark()
 const toggleDark = useToggle(isDark)
+
+// 处理下拉菜单命令
+const handleCommand = (command: string) => {
+  switch (command) {
+    case 'profile':
+      // 可以跳转到个人资料页面
+      ElMessage.info('个人资料功能待开发')
+      break
+    case 'write':
+      router.push('/article/write')
+      break
+    case 'logout':
+      authStore.doLogout()
+      ElMessage.success('已退出登录')
+      break
+  }
+}
+
+// 跳转到登录页面
+const goToLogin = () => {
+  router.push('/login')
+}
 </script>
 
 <style scoped>

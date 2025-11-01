@@ -160,7 +160,7 @@ const tableData = [
       left: 0;
       width: 100%;
       height: 1px;
-      background-color: white;
+      background-color: var(--el-text-color-primary);
       transform: scaleX(0);
       transform-origin: right;
       transition: transform 0.3s ease;

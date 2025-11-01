@@ -11,8 +11,6 @@ export async function myTest() {
   //   console.log("articles:", articles);
   // });
 
-  console.log("!!!!!!!!!!!!!!!!:", process.env.DB_HOST);
-
   // 删除测试
   // await deleteArticleById(3).then((article) => {
   //   console.log("删除文章article:", article);

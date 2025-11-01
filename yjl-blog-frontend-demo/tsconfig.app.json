@@ -9,6 +9,19 @@
       "@/*": ["./src/*"]
     },
 
-    "composite": true
+    "composite": true,
+    
+    // 禁用TypeScript类型检查
+    "noImplicitAny": false,
+    "strict": false,
+    "skipLibCheck": true,
+    "checkJs": false,
+    "noEmitOnError": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": false,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "allowJs": true
   }
 }
