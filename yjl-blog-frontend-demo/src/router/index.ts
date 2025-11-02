@@ -11,6 +11,14 @@ import Register from '@/views/Register.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+  scrollBehavior(to, from, savedPosition) {
+    // 如果是从文章详情返回文章列表，并且有保存的滚动位置，则恢复滚动位置
+    if (savedPosition) {
+      return savedPosition
+    }
+    // 其他情况滚动到顶部
+    return { top: 0 }
+  },
   routes: [
     {
       path: '/',

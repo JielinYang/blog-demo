@@ -1,11 +1,79 @@
 <script setup lang="ts">
 import ParticleEffect from './components/ParticleEffect/ParticleEffect.vue'
+import { ref, onMounted, nextTick, watch } from 'vue'
+import { useRoute } from 'vue-router'
+
+const mainContent = ref<HTMLElement | null>(null)
+const route = useRoute()
+
+// 检测页面内容高度，决定是否显示滚动条
+const checkScrollbar = () => {
+  nextTick(() => {
+    const body = document.body
+    const viewportHeight = window.innerHeight
+
+    // 获取页面实际内容高度
+    let contentHeight = 0
+
+    // 方法1：尝试获取el-main元素的高度
+    if (mainContent.value && mainContent.value.$el) {
+      // 如果是Element Plus组件，通过$el获取DOM元素
+      contentHeight = mainContent.value.$el.scrollHeight
+    } else if (mainContent.value) {
+      // 如果是原生元素
+      contentHeight = mainContent.value.scrollHeight
+    } else {
+      // 如果无法获取特定元素，使用document.body的高度
+      contentHeight = document.documentElement.scrollHeight
+    }
+
+    console.log('=== 滚动条检测开始 ===')
+    console.log('内容高度:', contentHeight, 'px')
+    console.log('视口高度:', viewportHeight, 'px')
+    console.log('是否需要滚动条:', contentHeight > viewportHeight)
+
+    // 如果内容高度超过视口高度，显示滚动条
+    if (contentHeight > viewportHeight) {
+      body.classList.add('overflow-auto')
+      console.log('✅ 显示滚动条 - 内容高度超过视口高度')
+    } else {
+      body.classList.remove('overflow-auto')
+      console.log('❌ 隐藏滚动条 - 内容高度未超过视口高度')
+    }
+
+    console.log('=== 滚动条检测结束 ===')
+  })
+}
+
+onMounted(() => {
+  console.log('🚀 App组件已挂载，开始初始化滚动条检测')
+  checkScrollbar()
+  // 监听窗口大小变化
+  window.addEventListener('resize', () => {
+    console.log('📏 窗口大小变化，重新检测滚动条')
+    checkScrollbar()
+  })
+})
+
+// 监听路由变化，确保在路由切换时检测滚动条
+watch(
+  () => route.path,
+  (newPath, oldPath) => {
+    console.log('🔄 路由变化检测到:', oldPath, '→', newPath)
+    console.log('开始检测滚动条状态...')
+
+    // 延迟检测，确保新页面内容已加载
+    setTimeout(() => {
+      checkScrollbar()
+    }, 100)
+  },
+)
 </script>
 
 <template>
   <el-container>
     <el-header><Menu></Menu></el-header>
-    <el-main>
+    <el-main ref="mainContent">
       <router-view></router-view>
     </el-main>
     <el-footer></el-footer>
@@ -16,103 +84,23 @@ import ParticleEffect from './components/ParticleEffect/ParticleEffect.vue'
   <el-backtop :right="100" :bottom="100" />
 </template>
 
-<!-- <script setup lang="ts">
-import { ref, onUnmounted, onMounted } from 'vue'
-import { gsap } from 'gsap'
-
-onMounted(() => {
-  containerRef.value = document.body
-  document.body.classList.add('particle-container')
-  document.body.addEventListener('mousemove', handleMouseMove)
-})
-
-// 粒子生成相关动画
-const containerRef = ref<HTMLElement | null>(null)
-const particles = ref<HTMLDivElement[]>([])
-const MAX_PARTICLES = 100
-const PARTICLE_LIFETIME = 1.5
-let lastGenerateTime = Date.now()
-const generateInterval = 100
-
-const getRandomColor = () => `hsl(${Math.random() * 360}, 70%, 50%)`
-
-const getRandomShape = () => {
-  const shapes = ['circle', 'square', 'triangle']
-  return shapes[Math.floor(Math.random() * shapes.length)]
-}
-
-const createParticle = (x: number, y: number) => {
-  const particle = document.createElement('div')
-  const shape = getRandomShape()
-  const size = Math.random() * 4
-
-  particle.className = `particle particle--circle`
-  particle.style.backgroundColor = getRandomColor()
-  particle.style.width = `${size}px`
-  particle.style.height = shape === 'triangle' ? '0' : `${size}px`
-  particle.style.borderColor = particle.style.backgroundColor
-  particle.style.borderRadius = '50%'
-  particle.style.background =
-    'radial-gradient(circle at center, #ffcc00 0%, rgba(255, 204, 0, 0.5) 50%, rgba(255, 204, 0, 0) 100%)'
-  particle.style.animation = 'pulse 2s infinite' // 引用预定义的动画
-  particle.style.position = 'absolute'
-
-  // 显式设置元素的 left 和 top 为 0，确保 transform 的初始位置正确
-  particle.style.left = '0px'
-  particle.style.top = '0px'
-
-  if (containerRef.value) {
-    containerRef.value.appendChild(particle)
-  }
-  particles.value.push(particle)
-
-  // 直接通过 left/top 动画，避免 transform 的叠加问题
-  gsap.to(particle, {
-    duration: PARTICLE_LIFETIME,
-    // 目标位置：鼠标位置 + 随机偏移
-    left: `${x + (Math.random() * 150 - 50)}px`,
-    top: `${y + (Math.random() * 150 - 50)}px`,
-    // 初始位置：鼠标位置
-    startAt: { left: `${x}px`, top: `${y}px` },
-    scale: 10,
-    opacity: 0,
-    ease: 'power1.out',
-    onComplete: () => {
-      particle.remove()
-      const index = particles.value.indexOf(particle)
-      if (index !== -1) particles.value.splice(index, 1)
-    },
-  })
-}
-
-const handleMouseMove = (event: MouseEvent) => {
-  const now = Date.now()
-  const interval = now - lastGenerateTime
-  if (interval < generateInterval) {
-    return
-  }
-  lastGenerateTime = now
-
-  if (containerRef.value) {
-    const rect = containerRef.value.getBoundingClientRect()
-    const x = event.clientX - rect.left
-    const y = event.clientY - rect.top
-    if (particles.value.length <= MAX_PARTICLES) {
-      createParticle(x, y)
-    }
-  }
-}
-
-onUnmounted(() => {
-  particles.value.forEach((p) => p.remove())
-  particles.value = []
-})
-</script> -->
-
 <style>
 /* body {
   background-color: red;
 } */
+
+/* 使用CSS自定义属性计算滚动条宽度，保持页面宽度稳定 */
+:root {
+  --scrollbar-width: 17px; /* 大多数浏览器的滚动条宽度 */
+}
+
+html {
+  /* 只在内容溢出时显示滚动条 */
+  overflow-y: auto;
+  /* 为滚动条预留空间，保持宽度稳定 */
+  width: calc(100vw - var(--scrollbar-width));
+  margin-right: var(--scrollbar-width);
+}
 </style>
 
 <style scoped>
@@ -133,10 +121,10 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 500px;
   position: relative;
   top: var(--header-height);
   overflow: visible;
+  margin-top: 30px;
 }
 
 .el-footer {

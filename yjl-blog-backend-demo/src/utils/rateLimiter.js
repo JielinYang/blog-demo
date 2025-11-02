@@ -3,11 +3,11 @@ import rateLimit from "express-rate-limit";
 // 通用限流配置
 export const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15分钟
-  max: 100, // 每个IP最多100次请求
+  max: 300, // 每个IP最多100次请求
   message: {
     code: 429,
     message: "请求过于频繁，请稍后再试",
-    data: null
+    data: null,
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -20,7 +20,7 @@ export const strictLimiter = rateLimit({
   message: {
     code: 429,
     message: "操作过于频繁，请稍后再试",
-    data: null
+    data: null,
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -33,7 +33,7 @@ export const uploadLimiter = rateLimit({
   message: {
     code: 429,
     message: "上传过于频繁，请稍后再试",
-    data: null
+    data: null,
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -46,7 +46,7 @@ export const loginLimiter = rateLimit({
   message: {
     code: 429,
     message: "登录尝试过于频繁，请稍后再试",
-    data: null
+    data: null,
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -60,7 +60,7 @@ export const createRateLimiter = (windowMs, max, message) => {
     message: {
       code: 429,
       message: message || "请求过于频繁，请稍后再试",
-      data: null
+      data: null,
     },
     standardHeaders: true,
     legacyHeaders: false,

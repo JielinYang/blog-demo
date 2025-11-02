@@ -65,27 +65,51 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useDark, useToggle } from '@vueuse/core'
 import { ElMessage } from 'element-plus'
 import { User, Edit, SwitchButton } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 
 const activeIndex = ref('1')
+
+// 根据当前路由设置激活的菜单项
+const setActiveIndexFromRoute = () => {
+  const path = route.path
+  if (path === '/') {
+    activeIndex.value = '1'
+  } else if (path.startsWith('/article')) {
+    activeIndex.value = '2'
+  } else if (path === '/life') {
+    activeIndex.value = '3'
+  } else if (path === '/about') {
+    activeIndex.value = '4'
+  }
+}
+
 const handleSelect = (key: string, keyPath: string) => {
   console.log(key, keyPath)
 }
 
-// 组件挂载时初始化用户信息
+// 组件挂载时初始化用户信息和路由状态
 onMounted(async () => {
   // 如果用户已认证但用户信息为空，重新初始化
   if (authStore.isAuthenticated && !authStore.user) {
     await authStore.initAuth()
   }
+  
+  // 初始化路由状态
+  setActiveIndexFromRoute()
+})
+
+// 监听路由变化，更新激活的菜单项
+watch(() => route.path, () => {
+  setActiveIndexFromRoute()
 })
 
 const input = ref('')

@@ -12,13 +12,16 @@
           <el-text class="meta-title">{{ article?.title }}</el-text>
           <div class="article-meta">
             <el-text
-              ><el-icon><User /></el-icon>{{ article?.authorId }}</el-text
+              ><el-icon><Clock /></el-icon>{{ formatDate(article?.createTime) }}</el-text
             >
             <el-text
-              ><el-icon><View /></el-icon>{{ article?.views }}</el-text
+              ><el-icon><View /></el-icon>{{ article?.views }} 浏览</el-text
             >
             <el-text
-              ><el-icon><Clock /></el-icon>{{ article?.createTime }}</el-text
+              ><el-icon><ChatDotRound /></el-icon>{{ article?.commentCount }} 评论</el-text
+            >
+            <el-text
+              ><el-icon><Star /></el-icon>{{ article?.likeCount }} 点赞</el-text
             >
           </div>
           <div class="article-actions" v-if="authStore.isAdmin">
@@ -32,7 +35,9 @@
         </div>
       </template>
       <div class="article-content" v-if="article">
-        <div v-html="article.content" class="rich-text-content"></div>
+        <el-text>
+          <div v-html="article.content" class="rich-text-content"></div>
+        </el-text>
       </div>
       <div v-else class="loading">
         <el-skeleton :rows="10" animated />
@@ -44,7 +49,18 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ArrowLeft, User, View, Clock, Picture, Loading, Edit, Delete } from '@element-plus/icons-vue'
+import {
+  ArrowLeft,
+  User,
+  View,
+  Clock,
+  Picture,
+  Loading,
+  Edit,
+  Delete,
+  ChatDotRound,
+  Star,
+} from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getArticleDetail, deleteArticle as deleteArticleApi } from '@/apis/articles'
 import { useAuthStore } from '@/stores/auth'
@@ -57,6 +73,7 @@ const articleId = route.params.id as string
 
 // 返回文章列表
 const goBack = () => {
+  console.log('返回按钮点击，使用router.back()返回')
   router.back()
 }
 
@@ -68,41 +85,62 @@ const article = ref<Article | null>(null)
 const fetchArticleDetail = async () => {
   try {
     const response = await getArticleDetail(articleId)
-    
-    // 检查响应数据是否存在 - response本身就是后端返回的数据对象
+
+    // 检查响应数据是否存在
     if (!response) {
       throw new Error('文章数据为空')
     }
-    
-    const articleData = response
-    console.log('后端返回的文章数据:', articleData)
-    
+
+    // 根据后端响应结构，数据在response.data中
+    const responseData = response.data
+
+    if (!responseData) {
+      throw new Error('文章数据为空')
+    }
+
     // 数据适配，处理字段映射 - 根据后端实际返回的字段进行适配
     article.value = {
-      id: articleData.id || 0,
-      title: articleData.title || '无标题',
-      content: articleData.content || '',
-      authorId: articleData.authorId || 0, // 后端可能没有返回这个字段
-      authorName: articleData.authorName || '匿名作者', // 后端可能没有返回这个字段
-      categoryId: articleData.categoryId || undefined, // 后端可能没有返回这个字段
-      categoryName: articleData.categoryName || '未分类', // 后端可能没有返回这个字段
-      tags: articleData.tags || [], // 后端可能没有返回这个字段
-      summary: articleData.summary || '', // 后端可能没有返回这个字段
-      coverImage: articleData.coverUrl || '', // 将coverUrl映射为coverImage
-      views: articleData.views || 0,
-      likeCount: articleData.likeCount || 0,
-      commentCount: articleData.commentCount || 0,
-      status: articleData.status || 1,
-      isTop: articleData.isTop || false, // 后端可能没有返回这个字段
-      createTime: articleData.createTime || new Date().toISOString(),
-      updateTime: articleData.updateTime || new Date().toISOString()
+      id: responseData.id || 0,
+      title: responseData.title || '无标题',
+      content: responseData.content || '',
+      authorId: responseData.authorId || 0, // 后端可能没有返回这个字段
+      authorName: responseData.authorName || '匿名作者', // 后端可能没有返回这个字段
+      categoryId: responseData.categoryId || undefined, // 后端可能没有返回这个字段
+      categoryName: responseData.categoryName || '未分类', // 后端可能没有返回这个字段
+      tags: responseData.tags || [], // 后端可能没有返回这个字段
+      summary: responseData.description || '', // 后端返回的是description字段
+      coverImage: responseData.coverUrl || '', // 将coverUrl映射为coverImage
+      views: responseData.views || 0,
+      likeCount: responseData.likeCount || 0,
+      commentCount: responseData.commentCount || 0,
+      status: responseData.status || 1,
+      isTop: responseData.is_top || false, // 后端返回的是is_top字段
+      createTime: responseData.createTime || new Date().toISOString(),
+      updateTime: responseData.updateTime || new Date().toISOString(),
     }
-    console.log('获取文章详情成功', article.value)
   } catch (error) {
     console.error('Error fetching article detail:', error)
     ElMessage.error('获取文章详情失败')
     // 如果获取文章详情失败，跳转回文章列表
     router.push('/article')
+  }
+}
+
+// 格式化日期
+const formatDate = (dateString?: string) => {
+  if (!dateString) return '未知时间'
+
+  try {
+    const date = new Date(dateString)
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+
+    return `${year}-${month}-${day} ${hours}:${minutes}`
+  } catch (error) {
+    return '时间格式错误'
   }
 }
 
@@ -117,9 +155,9 @@ const deleteArticle = async () => {
     await ElMessageBox.confirm('确定要删除这篇文章吗？此操作不可恢复！', '警告', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
-      type: 'warning'
+      type: 'warning',
     })
-    
+
     await deleteArticleApi(Number(articleId))
     ElMessage.success('文章删除成功')
     router.push('/article')
@@ -131,7 +169,11 @@ const deleteArticle = async () => {
   }
 }
 
-onMounted(fetchArticleDetail)
+onMounted(() => {
+  fetchArticleDetail()
+  // 页面加载后滚动到顶部
+  window.scrollTo(0, 0)
+})
 </script>
 
 <style scoped>
@@ -142,8 +184,8 @@ onMounted(fetchArticleDetail)
 }
 
 .article-detail {
-  max-width: 1200px;
-  margin: 20px auto;
+  width: 1000px;
+  margin: 50px auto 20px auto;
   padding: 0 20px;
   position: relative;
 }
@@ -153,6 +195,10 @@ onMounted(fetchArticleDetail)
   left: 20px;
   top: -50px;
   z-index: 1;
+}
+
+.box-card {
+  border-radius: 12px;
 }
 
 .card-header {
@@ -237,12 +283,30 @@ onMounted(fetchArticleDetail)
   line-height: 1.25;
 }
 
-.rich-text-content h1 { font-size: 2em; color: #1a1a1a; }
-.rich-text-content h2 { font-size: 1.5em; color: #2c3e50; }
-.rich-text-content h3 { font-size: 1.25em; color: #34495e; }
-.rich-text-content h4 { font-size: 1.125em; color: #4a5568; }
-.rich-text-content h5 { font-size: 1em; color: #718096; }
-.rich-text-content h6 { font-size: 0.875em; color: #a0aec0; }
+.rich-text-content h1 {
+  font-size: 2em;
+  color: #1a1a1a;
+}
+.rich-text-content h2 {
+  font-size: 1.5em;
+  color: #2c3e50;
+}
+.rich-text-content h3 {
+  font-size: 1.25em;
+  color: #34495e;
+}
+.rich-text-content h4 {
+  font-size: 1.125em;
+  color: #4a5568;
+}
+.rich-text-content h5 {
+  font-size: 1em;
+  color: #718096;
+}
+.rich-text-content h6 {
+  font-size: 0.875em;
+  color: #a0aec0;
+}
 
 /* 富文本中的段落样式 */
 .rich-text-content p {
@@ -289,76 +353,6 @@ onMounted(fetchArticleDetail)
   background-color: #f7fafc;
   color: #4a5568;
   font-style: italic;
-}
-
-/* 中文字体样式 */
-.rich-text-content {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-}
-
-/* 英文字体样式 */
-.rich-text-content :deep(span[data-font="Arial"]),
-.rich-text-content :deep(p[data-font="Arial"]),
-.rich-text-content :deep(h1[data-font="Arial"]),
-.rich-text-content :deep(h2[data-font="Arial"]),
-.rich-text-content :deep(h3[data-font="Arial"]),
-.rich-text-content :deep(h4[data-font="Arial"]),
-.rich-text-content :deep(h5[data-font="Arial"]),
-.rich-text-content :deep(h6[data-font="Arial"])
-{
-  font-family: Arial, sans-serif;
-}
-
-/* 宋体 */
-.rich-text-content :deep(span[data-font="SimSun"]),
-.rich-text-content :deep(p[data-font="SimSun"]),
-.rich-text-content :deep(h1[data-font="SimSun"]),
-.rich-text-content :deep(h2[data-font="SimSun"]),
-.rich-text-content :deep(h3[data-font="SimSun"]),
-.rich-text-content :deep(h4[data-font="SimSun"]),
-.rich-text-content :deep(h5[data-font="SimSun"]),
-.rich-text-content :deep(h6[data-font="SimSun"])
-{
-  font-family: SimSun, '宋体', serif;
-}
-
-/* 黑体 */
-.rich-text-content :deep(span[data-font="SimHei"]),
-.rich-text-content :deep(p[data-font="SimHei"]),
-.rich-text-content :deep(h1[data-font="SimHei"]),
-.rich-text-content :deep(h2[data-font="SimHei"]),
-.rich-text-content :deep(h3[data-font="SimHei"]),
-.rich-text-content :deep(h4[data-font="SimHei"]),
-.rich-text-content :deep(h5[data-font="SimHei"]),
-.rich-text-content :deep(h6[data-font="SimHei"])
-{
-  font-family: SimHei, '黑体', sans-serif;
-}
-
-/* 楷体 */
-.rich-text-content :deep(span[data-font="KaiTi"]),
-.rich-text-content :deep(p[data-font="KaiTi"]),
-.rich-text-content :deep(h1[data-font="KaiTi"]),
-.rich-text-content :deep(h2[data-font="KaiTi"]),
-.rich-text-content :deep(h3[data-font="KaiTi"]),
-.rich-text-content :deep(h4[data-font="KaiTi"]),
-.rich-text-content :deep(h5[data-font="KaiTi"]),
-.rich-text-content :deep(h6[data-font="KaiTi"])
-{
-  font-family: KaiTi, '楷体', serif;
-}
-
-/* 仿宋 */
-.rich-text-content :deep(span[data-font="FangSong"]),
-.rich-text-content :deep(p[data-font="FangSong"]),
-.rich-text-content :deep(h1[data-font="FangSong"]),
-.rich-text-content :deep(h2[data-font="FangSong"]),
-.rich-text-content :deep(h3[data-font="FangSong"]),
-.rich-text-content :deep(h4[data-font="FangSong"]),
-.rich-text-content :deep(h5[data-font="FangSong"]),
-.rich-text-content :deep(h6[data-font="FangSong"])
-{
-  font-family: FangSong, '仿宋', serif;
 }
 
 .image-placeholder,

@@ -8,8 +8,29 @@ import {
 } from "../controllers/articleController.js";
 import { authenticateToken, requireAdmin } from "../utils/auth.js";
 import { generalLimiter } from "../utils/rateLimiter.js";
+import ResponseWrapper from "../models/ResponseWrapper.js";
 
 const router = express.Router();
+
+// 测试接口（用于启动时测试）
+router.get("/test", generalLimiter, async (req, res) => {
+  try {
+    // 返回系统状态信息
+    const testData = {
+      status: "success",
+      message: "文章服务运行正常",
+      timestamp: new Date().toISOString(),
+      serverTime: new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }),
+      environment: process.env.NODE_ENV || "development",
+      version: "1.0.0"
+    };
+    
+    res.json(ResponseWrapper.success(testData));
+  } catch (err) {
+    console.error("测试接口错误:", err);
+    res.status(500).json(ResponseWrapper.error("测试接口异常"));
+  }
+});
 
 // 获取分页文章列表（公开，带限流）
 router.get("/", generalLimiter, getArticles);
@@ -18,9 +39,15 @@ router.get("/", generalLimiter, getArticles);
 router.get("/:id", generalLimiter, async (req, res) => {
   try {
     const article = await getArticleById(req.params.id);
-    article ? res.json(article) : res.status(404).json({ error: "文章未找到" });
+    if (article) {
+      // 返回完整的文章信息，包含所有数据库字段
+      res.json(ResponseWrapper.success(article));
+    } else {
+      res.status(404).json(ResponseWrapper.error("文章未找到"));
+    }
   } catch (err) {
-    res.status(500).json({ error: "获取文章详情失败，error：", err });
+    console.error("获取文章详情失败:", err);
+    res.status(500).json(ResponseWrapper.error("获取文章详情失败"));
   }
 });
 

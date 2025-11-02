@@ -2,11 +2,20 @@ import pool from "../config/db.js";
 import ResponseWrapper from "./ResponseWrapper.js";
 
 export class Articles {
-  // 格式化日期时间的辅助方法
+  // 格式化日期时间的辅助方法（转换为本地时间）
   static formatDateTime(dateTime) {
     if (!dateTime) return null;
     const date = new Date(dateTime);
-    return date.toISOString().slice(0, 19).replace("T", " ");
+
+    // 转换为本地时间（北京时间 UTC+8）
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   }
 
   constructor({
@@ -103,7 +112,13 @@ export class Articles {
   }
 
   // 分页查询（带分类过滤、关键词搜索、状态过滤）
-  static async getArticles(page = 1, limit = 2, categoryId = null, keyword = null, status = null) {
+  static async getArticles(
+    page = 1,
+    limit = 2,
+    categoryId = null,
+    keyword = null,
+    status = null
+  ) {
     try {
       // 参数校验
       if (limit <= 0) {
@@ -156,15 +171,17 @@ export class Articles {
       // 执行查询
       const [rows] = await pool.query(query, params);
       const [[{ total }]] = await pool.query(countQuery, countParams);
-      
+
       // 处理时间字段映射
-      const data = Array.isArray(rows) ? rows.map((row) => {
-        const article = new Articles(row);
-        // 确保时间字段正确映射
-        article.createTime = Articles.formatDateTime(row.create_time);
-        article.updateTime = Articles.formatDateTime(row.update_time);
-        return article;
-      }) : [];
+      const data = Array.isArray(rows)
+        ? rows.map((row) => {
+            const article = new Articles(row);
+            // 确保时间字段正确映射
+            article.createTime = Articles.formatDateTime(row.create_time);
+            article.updateTime = Articles.formatDateTime(row.update_time);
+            return article;
+          })
+        : [];
 
       // 返回标准化成功响应
       return ResponseWrapper.success({
@@ -180,22 +197,34 @@ export class Articles {
     }
   }
 
-  // 按ID查询
+  // 按ID查询（每次查询自动增加浏览量）
   static async getById(id) {
     if (id <= 0) {
       return null;
     }
     try {
+      // 先查询文章详情
       const [rows] = await pool.query(
         `SELECT id, title, content, category_id, views, like_count, comment_count, status, cover_url, description, is_top, create_time, update_time
          FROM articles
          WHERE id = ?`,
         [id]
       );
+      
       if (rows[0]) {
+        // 更新浏览量（views + 1）
+        await pool.query(
+          `UPDATE articles SET views = views + 1 WHERE id = ?`,
+          [id]
+        );
+        
         const article = new Articles(rows[0]);
         article.createTime = Articles.formatDateTime(rows[0].create_time);
         article.updateTime = Articles.formatDateTime(rows[0].update_time);
+        
+        // 更新views属性为增加后的值
+        article.views = rows[0].views + 1;
+        
         return article;
       }
       return null;

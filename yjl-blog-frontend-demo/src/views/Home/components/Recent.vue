@@ -36,39 +36,6 @@
 <script lang="ts" setup>
 import misc from '@/utils/misc'
 
-// type TableRowData = {
-//   id: number
-//   title: string
-//   date: string
-// }
-
-// const getCellClassName = ({
-//   row,
-//   rowIndex,
-//   columnIndex,
-// }: {
-//   row: TableRowData
-//   rowIndex: number
-//   columnIndex: number
-// }) => {
-//   if (columnIndex !== rowIndex && row.date !== '0') {
-//     return 'custom-cell'
-//   }
-//   return ''
-// }
-
-// const getRowStyle = ({ row, rowIndex }: { row: TableRowData; rowIndex: number }) => {
-//   console.log('Row:', row, 'Index:', rowIndex)
-
-//   // 条件优化：确保始终返回对象
-//   if (rowIndex % 2 === 0 && row.date !== '0') {
-//     return {
-//       backgroundColor: 'pink', // 驼峰命名
-//     }
-//   }
-//   return {} // 必须返回空对象
-// }
-
 const tableData = [
   {
     id: 1,

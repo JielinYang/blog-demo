@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // GET请求
 export function getTest() {
   return request
-    .get('/', {})
+    .get('/articles/test', {})
     .then((res) => console.log(res))
     .catch((err) => console.error(err))
 }
