@@ -38,7 +38,7 @@
           <el-avatar
             :size="40"
             fit="cover"
-            src="http://192.168.101.128:19000/blog-images/default_head2.jpg"
+            :src="getDefaultCoverImageUrl('default_head2.jpg')"
           />
           <!-- <div class="username-tooltip">{{ authStore.user?.username }}</div> -->
         </div>
@@ -71,6 +71,7 @@ import { useDark, useToggle } from '@vueuse/core'
 import { ElMessage } from 'element-plus'
 import { User, Edit, SwitchButton } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/auth'
+import { getDefaultCoverImageUrl } from '@/config/minio'
 
 const router = useRouter()
 const route = useRoute()

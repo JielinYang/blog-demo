@@ -3,18 +3,21 @@
     <el-button
       class="write-article-btn"
       type="primary"
-      icon="el-icon-edit"
       @click="goToWriteArticle"
     >
-      写文章
+      <el-icon><Edit /></el-icon>
+      <span>写文章</span>
     </el-button>
 
     <!-- 顶部翻页组件 -->
     <el-pagination
       v-if="pagination.total > 0"
       @current-change="handleCurrentChange"
+      @size-change="handleSizeChange"
       :current-page="pagination.currentPage"
-      layout="total, prev, pager, next"
+      :page-size="pagination.pageSize"
+      :page-sizes="[6, 10, 20, 50]"
+      layout="total, sizes, prev, pager, next"
       :total="pagination.total"
       size="large"
       style="margin: 0 auto"
@@ -43,8 +46,11 @@
     <el-pagination
       v-if="pagination.total > 0"
       @current-change="handleCurrentChange"
+      @size-change="handleSizeChange"
       :current-page="pagination.currentPage"
-      layout="total, prev, pager, next"
+      :page-size="pagination.pageSize"
+      :page-sizes="[6, 10, 20, 50]"
+      layout="total, sizes, prev, pager, next"
       :total="pagination.total"
       size="large"
       style="margin: 0 auto"
@@ -59,11 +65,12 @@ import ArticalBlock from './components/showArticle/ArticleBlock.vue'
 import type { Article } from '@/models/Article'
 import router from '@/router'
 import { ElButton, ElSkeleton, ElEmpty } from 'element-plus'
+import { Edit } from '@element-plus/icons-vue'
 
 const articles = ref<Article[]>([])
 const pagination = ref({
   currentPage: 1,
-  pageSize: 10,
+  pageSize: 6,
   total: 0,
 })
 const loading = ref(false)
@@ -94,7 +101,48 @@ const handleCurrentChange = (newPage: number) => {
             createTime: item.createTime || new Date().toISOString(),
             updateTime: item.updateTime || new Date().toISOString(),
           }))
-          .sort((a, b) => new Date(b.createTime).getTime() - new Date(a.createTime).getTime())
+        pagination.value.total = res.data.articles.total
+      } else {
+        articles.value = []
+        pagination.value.total = 0
+      }
+    })
+    .catch((error) => {
+      articles.value = []
+      pagination.value.total = 0
+    })
+    .finally(() => {
+      loading.value = false
+    })
+}
+
+const handleSizeChange = (newSize: number) => {
+  pagination.value.pageSize = newSize
+  pagination.value.currentPage = 1 // 重置到第一页
+  loading.value = true
+  getArticles(pagination.value.currentPage, pagination.value.pageSize)
+    .then((res) => {
+      if (res.data && res.data.articles && res.data.articles.data) {
+        articles.value = res.data.articles.data
+          .map((item: any) => ({
+            id: item.id || 0,
+            title: item.title || '无标题',
+            content: item.content || '',
+            authorId: item.authorId || 0,
+            authorName: item.authorName || '匿名作者',
+            categoryId: item.categoryId || undefined,
+            categoryName: item.categoryName || '未分类',
+            tags: item.tags || [],
+            summary: item.summary || '',
+            coverImage: item.coverUrl || '', // 将coverUrl映射为coverImage
+            views: item.views || 0,
+            likeCount: item.likeCount || 0,
+            commentCount: item.commentCount || 0,
+            status: item.status || 1,
+            isTop: item.isTop || false,
+            createTime: item.createTime || new Date().toISOString(),
+            updateTime: item.updateTime || new Date().toISOString(),
+          }))
         pagination.value.total = res.data.articles.total
       } else {
         articles.value = []
@@ -177,7 +225,6 @@ onMounted(() => {
             createTime: item.createTime || new Date().toISOString(),
             updateTime: item.updateTime || new Date().toISOString(),
           }))
-          .sort((a, b) => new Date(b.createTime).getTime() - new Date(a.createTime).getTime())
         pagination.value.total = res.data.articles.total
       } else {
         console.error('数据格式错误:', res.data)
@@ -214,8 +261,15 @@ onMounted(() => {
 .write-article-btn {
   position: fixed;
   bottom: 30px;
-  right: 30px;
+  right: 100px;
   z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .loading-container {

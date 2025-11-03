@@ -1,21 +1,6 @@
 import { ElMessage } from 'element-plus'
 import request from '@/utils/request'
-
-interface MinioConfig {
-  endpoint: string
-  accessKey: string
-  secretKey: string
-  bucketName: string
-  useSSL: boolean
-}
-
-const config: MinioConfig = {
-  endpoint: '192.168.101.128:19000',
-  accessKey: 'minio',
-  secretKey: 'nrzaKwM6HE5z3w4N',
-  bucketName: 'blog-images',
-  useSSL: false
-}
+import { minioConfig, getMinioBaseUrl, type MinioConfig } from '@/config/minio'
 
 // 通过后端API上传文件到MinIO
 export const uploadToMinio = async (file: File): Promise<string> => {
@@ -75,7 +60,7 @@ const uploadToMinioDirect = async (file: File): Promise<string> => {
     const xhr = new XMLHttpRequest()
     
     // 构建上传URL
-    const uploadUrl = `http://${config.endpoint}/${config.bucketName}/${fileName}`
+    const uploadUrl = `${getMinioBaseUrl()}/${fileName}`
     
     xhr.open('PUT', uploadUrl, true)
     xhr.setRequestHeader('Content-Type', file.type)
@@ -98,10 +83,10 @@ const uploadToMinioDirect = async (file: File): Promise<string> => {
 
 // 获取minio配置
 export const getMinioConfig = (): MinioConfig => {
-  return { ...config }
+  return { ...minioConfig }
 }
 
 // 更新minio配置
 export const updateMinioConfig = (newConfig: Partial<MinioConfig>) => {
-  Object.assign(config, newConfig)
+  Object.assign(minioConfig, newConfig)
 }

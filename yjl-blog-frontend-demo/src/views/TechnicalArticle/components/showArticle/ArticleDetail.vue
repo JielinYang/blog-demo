@@ -12,7 +12,7 @@
           <el-text class="meta-title">{{ article?.title }}</el-text>
           <div class="article-meta">
             <el-text
-              ><el-icon><Clock /></el-icon>{{ formatDate(article?.createTime) }}</el-text
+              ><el-icon><Clock /></el-icon>{{ formatDate(article?.updateTime) }} 最后修改</el-text
             >
             <el-text
               ><el-icon><View /></el-icon>{{ article?.views }} 浏览</el-text
@@ -21,7 +21,7 @@
               ><el-icon><ChatDotRound /></el-icon>{{ article?.commentCount }} 评论</el-text
             >
             <el-text
-              ><el-icon><Star /></el-icon>{{ article?.likeCount }} 点赞</el-text
+              ><el-icon><Star /></el-icon>{{ article?.likeCount }} 星标</el-text
             >
           </div>
           <div class="article-actions" v-if="authStore.isAdmin">
@@ -183,6 +183,19 @@ onMounted(() => {
   box-sizing: border-box;
 }
 
+/* 使用深度选择器来影响v-html中的内容 */
+:deep(.rich-text-content) img {
+  max-width: 400px;
+  max-height: 400px;
+  width: auto;
+  height: auto;
+  margin: 20px auto;
+  display: block;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: zoom-in;
+}
+
 .article-detail {
   width: 1000px;
   margin: 50px auto 20px auto;
@@ -258,17 +271,6 @@ onMounted(() => {
 .rich-text-content {
   line-height: 1.8;
   font-size: 16px;
-}
-
-/* 富文本中的图片样式 */
-.rich-text-content img {
-  max-width: 100%;
-  height: auto;
-  margin: 20px auto;
-  display: block;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  cursor: zoom-in;
 }
 
 /* 富文本中的标题样式 */

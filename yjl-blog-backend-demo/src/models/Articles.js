@@ -169,8 +169,15 @@ export class Articles {
       params.push(limit, offset);
 
       // 执行查询
+      console.log("执行查询语句:", query);
+      console.log("查询参数:", params);
+      console.log("统计查询语句:", countQuery);
+      console.log("统计查询参数:", countParams);
+      
       const [rows] = await pool.query(query, params);
       const [[{ total }]] = await pool.query(countQuery, countParams);
+
+      console.log("查询结果：", rows);
 
       // 处理时间字段映射
       const data = Array.isArray(rows)
@@ -210,21 +217,20 @@ export class Articles {
          WHERE id = ?`,
         [id]
       );
-      
+
       if (rows[0]) {
-        // 更新浏览量（views + 1）
-        await pool.query(
-          `UPDATE articles SET views = views + 1 WHERE id = ?`,
-          [id]
-        );
-        
+        // 更新浏览量（views + 1），但不更新update_time字段
+        await pool.query(`UPDATE articles SET views = views + 1 WHERE id = ?`, [
+          id,
+        ]);
+
         const article = new Articles(rows[0]);
         article.createTime = Articles.formatDateTime(rows[0].create_time);
         article.updateTime = Articles.formatDateTime(rows[0].update_time);
-        
+
         // 更新views属性为增加后的值
         article.views = rows[0].views + 1;
-        
+
         return article;
       }
       return null;
