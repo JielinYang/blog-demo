@@ -8,8 +8,8 @@ interface IArticle {
   categoryId?: number
   categoryName?: string
   tags?: string[]
-  summary?: string
-  coverImage?: string
+  description?: string
+  coverUrl?: string
   views: number
   likeCount: number
   commentCount: number
@@ -29,8 +29,8 @@ export class Article implements IArticle {
   public categoryId?: number
   public categoryName?: string
   public tags?: string[]
-  public summary?: string
-  public coverImage?: string
+  public description?: string
+  public coverUrl?: string
   public views: number
   public likeCount: number
   public commentCount: number
@@ -49,8 +49,8 @@ export class Article implements IArticle {
     this.categoryId = data.categoryId
     this.categoryName = data.categoryName || ''
     this.tags = data.tags || []
-    this.summary = data.summary || ''
-    this.coverImage = data.coverImage || ''
+    this.description = data.description || ''
+    this.coverUrl = data.coverUrl || ''
     this.views = data.views || 0
     this.likeCount = data.likeCount || 0
     this.commentCount = data.commentCount || 0
@@ -66,8 +66,8 @@ export class Article implements IArticle {
   }
 
   // 生成文章摘要
-  public generateSummary(maxLength: number = 200): string {
-    if (this.summary) return this.summary
+  public generateDescription(maxLength: number = 200): string {
+    if (this.description) return this.description
     
     // 从内容中提取纯文本
     const plainText = this.content.replace(/<[^>]*>/g, '')

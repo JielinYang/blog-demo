@@ -1,5 +1,5 @@
 <template>
-  <el-menu :default-active="activeIndex" mode="horizontal" :ellipsis="false" @select="handleSelect">
+  <el-menu :default-active="activeIndex" mode="horizontal" :ellipsis="false">
     <el-menu-item>
       <ElementPlus style="width: 3em; height: 3em" />
     </el-menu-item>
@@ -35,11 +35,7 @@
     <el-menu-item style="padding-left: 0.5em">
       <el-dropdown v-if="authStore.isAuthenticated" @command="handleCommand">
         <div class="avatar-container">
-          <el-avatar
-            :size="40"
-            fit="cover"
-            :src="getDefaultCoverImageUrl('default_head2.jpg')"
-          />
+          <el-avatar :size="40" fit="cover" :src="getDefaultCoverImageUrl('default_head2.jpg')" />
           <!-- <div class="username-tooltip">{{ authStore.user?.username }}</div> -->
         </div>
         <template #dropdown>
@@ -93,25 +89,24 @@ const setActiveIndexFromRoute = () => {
   }
 }
 
-const handleSelect = (key: string, keyPath: string) => {
-  console.log(key, keyPath)
-}
-
 // 组件挂载时初始化用户信息和路由状态
 onMounted(async () => {
   // 如果用户已认证但用户信息为空，重新初始化
   if (authStore.isAuthenticated && !authStore.user) {
     await authStore.initAuth()
   }
-  
+
   // 初始化路由状态
   setActiveIndexFromRoute()
 })
 
 // 监听路由变化，更新激活的菜单项
-watch(() => route.path, () => {
-  setActiveIndexFromRoute()
-})
+watch(
+  () => route.path,
+  () => {
+    setActiveIndexFromRoute()
+  },
+)
 
 const input = ref('')
 

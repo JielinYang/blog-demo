@@ -41,6 +41,11 @@ onMounted(() => {
   toolbar.addHandler('image', () => {
     emit('insert-image')
   })
+
+  // 初始化内容
+  if (props.modelValue) {
+    quill.clipboard.dangerouslyPasteHTML(props.modelValue)
+  }
 })
 
 // 外部内容同步
@@ -71,7 +76,6 @@ const insertImage = (url: string) => {
     // 使用对象格式插入图片，包含样式控制
     quill.insertEmbed(range.index, 'image', url, 'user')
     quill.setSelection(range.index + 1, 0)
-    console.log('RichTextEditor：图片插入成功')
   } catch (error) {
     console.error('RichTextEditor：图片插入失败:', error)
   }

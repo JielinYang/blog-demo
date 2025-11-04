@@ -76,4 +76,7 @@ declare module 'vue' {
     UnderlineAnimation: typeof import('./src/components/UnderlineAnimation.vue')['default']
     WelcomeItem: typeof import('./src/components/WelcomeItem.vue')['default']
   }
+  export interface ComponentCustomProperties {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
+  }
 }

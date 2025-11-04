@@ -1,10 +1,6 @@
 <template>
   <el-container class="article-list-contaier">
-    <el-button
-      class="write-article-btn"
-      type="primary"
-      @click="goToWriteArticle"
-    >
+    <el-button class="write-article-btn" type="primary" @click="goToWriteArticle">
       <el-icon><Edit /></el-icon>
       <span>写文章</span>
     </el-button>
@@ -81,26 +77,25 @@ const handleCurrentChange = (newPage: number) => {
   getArticles(newPage, pagination.value.pageSize)
     .then((res) => {
       if (res.data && res.data.articles && res.data.articles.data) {
-        articles.value = res.data.articles.data
-          .map((item: any) => ({
-            id: item.id || 0,
-            title: item.title || '无标题',
-            content: item.content || '',
-            authorId: item.authorId || 0,
-            authorName: item.authorName || '匿名作者',
-            categoryId: item.categoryId || undefined,
-            categoryName: item.categoryName || '未分类',
-            tags: item.tags || [],
-            summary: item.summary || '',
-            coverImage: item.coverUrl || '', // 将coverUrl映射为coverImage
-            views: item.views || 0,
-            likeCount: item.likeCount || 0,
-            commentCount: item.commentCount || 0,
-            status: item.status || 1,
-            isTop: item.isTop || false,
-            createTime: item.createTime || new Date().toISOString(),
-            updateTime: item.updateTime || new Date().toISOString(),
-          }))
+        articles.value = res.data.articles.data.map((item: Article) => ({
+          id: item.id || 0,
+          title: item.title || '无标题',
+          content: item.content || '',
+          authorId: item.authorId || 0,
+          authorName: item.authorName || '匿名作者',
+          categoryId: item.categoryId || undefined,
+          categoryName: item.categoryName || '未分类',
+          tags: item.tags || [],
+          description: item.description || '',
+          coverUrl: item.coverUrl || '',
+          views: item.views || 0,
+          likeCount: item.likeCount || 0,
+          commentCount: item.commentCount || 0,
+          status: item.status || 1,
+          isTop: item.isTop || false,
+          createTime: item.createTime || new Date().toISOString(),
+          updateTime: item.updateTime || new Date().toISOString(),
+        }))
         pagination.value.total = res.data.articles.total
       } else {
         articles.value = []
@@ -110,6 +105,7 @@ const handleCurrentChange = (newPage: number) => {
     .catch((error) => {
       articles.value = []
       pagination.value.total = 0
+      console.error('获取文章列表失败:', error)
     })
     .finally(() => {
       loading.value = false
@@ -123,26 +119,25 @@ const handleSizeChange = (newSize: number) => {
   getArticles(pagination.value.currentPage, pagination.value.pageSize)
     .then((res) => {
       if (res.data && res.data.articles && res.data.articles.data) {
-        articles.value = res.data.articles.data
-          .map((item: any) => ({
-            id: item.id || 0,
-            title: item.title || '无标题',
-            content: item.content || '',
-            authorId: item.authorId || 0,
-            authorName: item.authorName || '匿名作者',
-            categoryId: item.categoryId || undefined,
-            categoryName: item.categoryName || '未分类',
-            tags: item.tags || [],
-            summary: item.summary || '',
-            coverImage: item.coverUrl || '', // 将coverUrl映射为coverImage
-            views: item.views || 0,
-            likeCount: item.likeCount || 0,
-            commentCount: item.commentCount || 0,
-            status: item.status || 1,
-            isTop: item.isTop || false,
-            createTime: item.createTime || new Date().toISOString(),
-            updateTime: item.updateTime || new Date().toISOString(),
-          }))
+        articles.value = res.data.articles.data.map((item: Article) => ({
+          id: item.id || 0,
+          title: item.title || '无标题',
+          content: item.content || '',
+          authorId: item.authorId || 0,
+          authorName: item.authorName || '匿名作者',
+          categoryId: item.categoryId || undefined,
+          categoryName: item.categoryName || '未分类',
+          tags: item.tags || [],
+          description: item.description || '',
+          coverUrl: item.coverUrl || '',
+          views: item.views || 0,
+          likeCount: item.likeCount || 0,
+          commentCount: item.commentCount || 0,
+          status: item.status || 1,
+          isTop: item.isTop || false,
+          createTime: item.createTime || new Date().toISOString(),
+          updateTime: item.updateTime || new Date().toISOString(),
+        }))
         pagination.value.total = res.data.articles.total
       } else {
         articles.value = []
@@ -152,6 +147,7 @@ const handleSizeChange = (newSize: number) => {
     .catch((error) => {
       articles.value = []
       pagination.value.total = 0
+      console.error('获取文章列表失败:', error)
     })
     .finally(() => {
       loading.value = false
@@ -195,36 +191,32 @@ onMounted(() => {
         localStorage.removeItem('articleListState')
       }, 20)
     } else {
-      console.log('没有检测到从文章详情返回的状态')
     }
-  } else {
-    console.log('localStorage中没有保存的状态')
   }
 
   loading.value = true
   getArticles(pagination.value.currentPage, pagination.value.pageSize)
     .then((res) => {
       if (res.data && res.data.articles && res.data.articles.data) {
-        articles.value = res.data.articles.data
-          .map((item: any) => ({
-            id: item.id || 0,
-            title: item.title || '无标题',
-            content: item.content || '',
-            authorId: item.authorId || 0,
-            authorName: item.authorName || '匿名作者',
-            categoryId: item.categoryId || undefined,
-            categoryName: item.categoryName || '未分类',
-            tags: item.tags || [],
-            summary: item.summary || '',
-            coverImage: item.coverUrl || '', // 将coverUrl映射为coverImage
-            views: item.views || 0,
-            likeCount: item.likeCount || 0,
-            commentCount: item.commentCount || 0,
-            status: item.status || 1,
-            isTop: item.isTop || false,
-            createTime: item.createTime || new Date().toISOString(),
-            updateTime: item.updateTime || new Date().toISOString(),
-          }))
+        articles.value = res.data.articles.data.map((item: Article) => ({
+          id: item.id || 0,
+          title: item.title || '无标题',
+          content: item.content || '',
+          authorId: item.authorId || 0,
+          authorName: item.authorName || '匿名作者',
+          categoryId: item.categoryId || undefined,
+          categoryName: item.categoryName || '未分类',
+          tags: item.tags || [],
+          description: item.description || '',
+          coverUrl: item.coverUrl || '',
+          views: item.views || 0,
+          likeCount: item.likeCount || 0,
+          commentCount: item.commentCount || 0,
+          status: item.status || 1,
+          isTop: item.isTop || false,
+          createTime: item.createTime || new Date().toISOString(),
+          updateTime: item.updateTime || new Date().toISOString(),
+        }))
         pagination.value.total = res.data.articles.total
       } else {
         console.error('数据格式错误:', res.data)

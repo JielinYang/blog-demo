@@ -73,7 +73,6 @@ const articleId = route.params.id as string
 
 // 返回文章列表
 const goBack = () => {
-  console.log('返回按钮点击，使用router.back()返回')
   router.back()
 }
 
@@ -108,8 +107,8 @@ const fetchArticleDetail = async () => {
       categoryId: responseData.categoryId || undefined, // 后端可能没有返回这个字段
       categoryName: responseData.categoryName || '未分类', // 后端可能没有返回这个字段
       tags: responseData.tags || [], // 后端可能没有返回这个字段
-      summary: responseData.description || '', // 后端返回的是description字段
-      coverImage: responseData.coverUrl || '', // 将coverUrl映射为coverImage
+      description: responseData.description || '',
+      coverUrl: responseData.coverUrl || '',
       views: responseData.views || 0,
       likeCount: responseData.likeCount || 0,
       commentCount: responseData.commentCount || 0,
@@ -140,6 +139,7 @@ const formatDate = (dateString?: string) => {
 
     return `${year}-${month}-${day} ${hours}:${minutes}`
   } catch (error) {
+    console.error('日期格式化错误:', error)
     return '时间格式错误'
   }
 }
@@ -161,7 +161,7 @@ const deleteArticle = async () => {
     await deleteArticleApi(Number(articleId))
     ElMessage.success('文章删除成功')
     router.push('/article')
-  } catch (error: any) {
+  } catch (error) {
     if (error !== 'cancel') {
       console.error('删除文章失败:', error)
       ElMessage.error(error.response?.data?.message || '删除文章失败')

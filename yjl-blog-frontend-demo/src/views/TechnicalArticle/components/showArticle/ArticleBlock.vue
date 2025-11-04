@@ -5,9 +5,9 @@
       <div class="cover-image-container">
         <el-image
           class="cover-image"
-          :src="getCoverImageUrl(article?.coverImage)"
+          :src="getCoverImageUrl(article?.coverUrl)"
           fit="cover"
-          :preview-src-list="[getCoverImageUrl(article?.coverImage)]"
+          :preview-src-list="[getCoverImageUrl(article?.coverUrl)]"
         >
           <template #error>
             <div class="cover-image-placeholder">
@@ -29,8 +29,8 @@
           </div>
         </el-header>
         <el-main>
-          <el-text class="article-summary" v-if="article?.summary" line-clamp="3">
-            {{ article?.summary }}
+          <el-text class="article-description" v-if="article?.description" line-clamp="3">
+            {{ article?.description }}
           </el-text>
           <el-text class="article-content" v-else line-clamp="3">
             {{ getPlainText(article?.content) }}
@@ -74,7 +74,7 @@
 
 <script setup lang="ts">
 import { Article } from '@/models/Article'
-import { User, View, Comment, Clock, Star, Picture } from '@element-plus/icons-vue'
+import { View, Comment, Clock, Star, Picture } from '@element-plus/icons-vue'
 import { getDefaultCoverImageByArticleId } from '@/config/minio'
 
 const props = defineProps<{
@@ -225,7 +225,7 @@ const getStatusType = (status: number = 0) => {
   display: inline-block;
 }
 
-.article-summary,
+.article-description,
 .article-content {
   font-size: 16px;
   line-height: 1.6;

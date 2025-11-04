@@ -28,7 +28,6 @@ export const useAuthStore = defineStore('auth', () => {
     if (token.value) {
       try {
         const res = await getCurrentUser()
-        console.log('获取用户信息响应:', res.data)
         if (res.success) {
           user.value = res.data
         } else {
@@ -47,6 +46,8 @@ export const useAuthStore = defineStore('auth', () => {
       isLoading.value = true
       const res = await login(loginForm)
 
+      console.log('登录响应:', res)
+
       if (res.success) {
         const { user: userData, token: accessToken, refreshToken: newRefreshToken } = res.data
 
@@ -63,7 +64,7 @@ export const useAuthStore = defineStore('auth', () => {
       } else {
         return { success: false, message: res.message || '登录失败' }
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('登录失败:', error)
       return {
         success: false,

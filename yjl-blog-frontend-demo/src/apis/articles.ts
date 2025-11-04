@@ -15,9 +15,12 @@ export const saveArticle = (data: {
   tags?: string[]
   category?: string
   categoryId?: number
-  summary?: string
-  coverImage?: string
+  description?: string
+  coverUrl?: string
   status?: number
+  views?: number
+  likeCount?: number
+  commentCount?: number
 }) => {
   return request.post(`/articles/save`, data)
 }
@@ -29,9 +32,12 @@ export const updateArticle = (id: number, data: {
   tags?: string[]
   category?: string
   categoryId?: number
-  summary?: string
-  coverImage?: string
+  description?: string
+  coverUrl?: string
   status?: number
+  views?: number
+  likeCount?: number
+  commentCount?: number
 }) => {
   return request.put(`/articles/${id}`, data)
 }

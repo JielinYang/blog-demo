@@ -63,24 +63,32 @@ export class Articles {
     try {
       if (this.id) {
         // 更新逻辑
-        const [result] = await pool.query(
-          `UPDATE articles SET 
+        console.log("执行文章更新操作，将显式更新update_time字段");
+        const updateQuery = `UPDATE articles SET 
               title = ?, content = ?, category_id = ?,
               views = ?, like_count = ?, comment_count = ?,
-              status = ?, cover_url = ?
-             WHERE id = ?`,
-          [
-            this.title,
-            this.content,
-            this.categoryId,
-            this.views,
-            this.likeCount,
-            this.commentCount,
-            this.status,
-            this.coverUrl,
-            this.id,
-          ]
-        );
+              status = ?, cover_url = ?, description = ?,
+              update_time = CURRENT_TIMESTAMP
+             WHERE id = ?`;
+        const updateParams = [
+          this.title,
+          this.content,
+          this.categoryId,
+          this.views,
+          this.likeCount,
+          this.commentCount,
+          this.status,
+          this.coverUrl,
+          this.description,
+          this.id,
+        ];
+        
+        console.log("UPDATE语句:", updateQuery);
+        console.log("UPDATE参数:", updateParams);
+        
+        const [result] = await pool.query(updateQuery, updateParams);
+        
+        console.log("UPDATE执行结果:", result);
         // @ts-ignore
         return result.affectedRows > 0;
       } else {
@@ -88,8 +96,8 @@ export class Articles {
         const [results] = await pool.query(
           `INSERT INTO articles (
               title, content, category_id,
-              views, like_count, comment_count, status, cover_url
-             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+              views, like_count, comment_count, status, cover_url, description
+             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             this.title,
             this.content,
@@ -99,6 +107,7 @@ export class Articles {
             this.commentCount,
             this.status,
             this.coverUrl,
+            this.description,
           ]
         );
         // @ts-ignore
@@ -173,7 +182,7 @@ export class Articles {
       console.log("查询参数:", params);
       console.log("统计查询语句:", countQuery);
       console.log("统计查询参数:", countParams);
-      
+
       const [rows] = await pool.query(query, params);
       const [[{ total }]] = await pool.query(countQuery, countParams);
 
@@ -220,9 +229,15 @@ export class Articles {
 
       if (rows[0]) {
         // 更新浏览量（views + 1），但不更新update_time字段
-        await pool.query(`UPDATE articles SET views = views + 1 WHERE id = ?`, [
-          id,
-        ]);
+        const viewsUpdateQuery = `UPDATE articles SET views = views + 1 WHERE id = ?`;
+        const viewsUpdateParams = [id];
+        
+        console.log("浏览量更新语句:", viewsUpdateQuery);
+        console.log("浏览量更新参数:", viewsUpdateParams);
+        
+        const [viewsResult] = await pool.query(viewsUpdateQuery, viewsUpdateParams);
+        
+        console.log("浏览量更新结果:", viewsResult);
 
         const article = new Articles(rows[0]);
         article.createTime = Articles.formatDateTime(rows[0].create_time);

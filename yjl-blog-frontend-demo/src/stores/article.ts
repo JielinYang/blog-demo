@@ -2,22 +2,26 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { saveArticle } from '@/apis/articles'
 import { getCategories } from '@/apis/articles'
+import type { Article } from '@/models/Article'
 
 export const useArticleStore = defineStore('article', () => {
-  const title = ref('测试文章标题')
-  const content = ref('测试文章内容')
+  const title = ref('')
+  const content = ref('')
   const tags = ref<string[]>([])
   const category = ref('')
   const categoryId = ref<number>()
-  const summary = ref('')
-  const coverImage = ref('')
+  const description = ref('')
+  const coverUrl = ref('')
   const status = ref(0) // 0: 草稿, 1: 发布
-  const categories = ref<Array<{id: number, name: string}>>([])
+  const views = ref(0)
+  const likeCount = ref(0)
+  const commentCount = ref(0)
+  const categories = ref<Array<{ id: number; name: string }>>([])
 
   // 生成摘要
-  const generateSummary = () => {
+  const generateDescription = () => {
     const plainText = content.value.replace(/<[^>]*>/g, '')
-    summary.value = plainText.length > 200 ? plainText.substring(0, 200) + '...' : plainText
+    description.value = plainText.length > 200 ? plainText.substring(0, 200) + '...' : plainText
   }
 
   const validateArticle = () => {
@@ -27,48 +31,61 @@ export const useArticleStore = defineStore('article', () => {
     if (!category.value && !categoryId.value) throw new Error('请选择文章分类')
   }
 
-  const saveArticles = async (publish: boolean = false) => {
-    validateArticle()
-    
+  // 构建文章数据对象
+  const buildArticleData = (publish: boolean = false) => {
     // 生成摘要
-    if (!summary.value) {
-      generateSummary()
+    if (!description.value) {
+      generateDescription()
     }
-    
-    const articleData = {
+
+    return {
       title: title.value,
       content: content.value,
       tags: tags.value,
       category: category.value,
       categoryId: categoryId.value,
-      summary: summary.value,
-      coverImage: coverImage.value,
-      status: publish ? 1 : status.value
+      description: description.value,
+      coverUrl: coverUrl.value,
+      status: publish ? 1 : status.value,
+      views: views.value,
+      likeCount: likeCount.value,
+      commentCount: commentCount.value,
     }
-    
+  }
+
+  const saveArticles = async (publish: boolean = false) => {
+    validateArticle()
+    const articleData = buildArticleData(publish)
+    return await saveArticle(articleData)
+  }
+
+  // 更新文章
+  const updateArticle = async (articleId: string, publish: boolean = false) => {
+    validateArticle()
+    const articleData = {
+      ...buildArticleData(publish),
+      id: parseInt(articleId), // 添加文章ID，用于标识更新操作
+    }
     return await saveArticle(articleData)
   }
 
   // 加载分类列表 - 简化版本用于调试
   const loadCategories = async () => {
-    console.log('开始加载分类列表...')
     try {
-      console.log('getCategories函数:', typeof getCategories)
       if (typeof getCategories !== 'function') {
         console.error('getCategories不是一个函数，检查导入')
         return
       }
-      
+
       const response = await getCategories()
-      console.log('分类API返回数据:', response)
-      
+
       // 确保有数据返回
       if (!response) {
         console.error('API返回为空')
         categories.value = []
         return
       }
-      
+
       // 适配不同的数据格式
       let categoryData = []
       if (response.data && response.data.categories && response.data.categories.data) {
@@ -83,9 +100,8 @@ export const useArticleStore = defineStore('article', () => {
         console.error('未知的分类数据格式:', response)
         categoryData = []
       }
-      
+
       categories.value = categoryData
-      console.log('分类加载完成，数量:', categories.value.length)
     } catch (error) {
       console.error('加载分类失败:', error)
       categories.value = []
@@ -100,21 +116,27 @@ export const useArticleStore = defineStore('article', () => {
     tags.value = []
     category.value = ''
     categoryId.value = undefined
-    summary.value = ''
-    coverImage.value = ''
+    description.value = ''
+    coverUrl.value = ''
     status.value = 0
+    views.value = 0
+    likeCount.value = 0
+    commentCount.value = 0
   }
 
   // 设置文章内容
-  const setArticle = (article: any) => {
+  const setArticle = (article: Article) => {
     title.value = article.title || ''
     content.value = article.content || ''
     tags.value = article.tags || []
-    category.value = article.category || ''
+    category.value = article.categoryName || ''
     categoryId.value = article.categoryId
-    summary.value = article.summary || ''
-    coverImage.value = article.coverImage || ''
+    description.value = article.description || ''
+    coverUrl.value = article.coverUrl || ''
     status.value = article.status || 0
+    views.value = article.views || 0
+    likeCount.value = article.likeCount || 0
+    commentCount.value = article.commentCount || 0
   }
 
   const changeArticle = () => {
@@ -122,21 +144,25 @@ export const useArticleStore = defineStore('article', () => {
     content.value = '修改后的内容'
   }
 
-  return { 
-    title, 
-    content, 
-    tags, 
-    category, 
+  return {
+    title,
+    content,
+    tags,
+    category,
     categoryId,
-    summary, 
-    coverImage,
+    description,
+    coverUrl,
     status,
+    views,
+    likeCount,
+    commentCount,
     categories,
-    saveArticles, 
+    saveArticles,
+    updateArticle,
     changeArticle,
     resetArticle,
     setArticle,
     loadCategories,
-    generateSummary
+    generateDescription,
   }
 })

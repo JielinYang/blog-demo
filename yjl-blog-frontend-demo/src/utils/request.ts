@@ -32,7 +32,7 @@ service.interceptors.response.use(
   async (error) => {
     // 处理HTTP错误（比如4xx,5xx错误）
     const authStore = useAuthStore()
-    
+
     if (error.response && error.response.status === 401) {
       // token过期，尝试刷新token
       try {
@@ -51,7 +51,7 @@ service.interceptors.response.use(
         router.push('/login')
       }
     }
-    
+
     let message = ''
     if (error && error.response) {
       switch (error.response.status) {
@@ -97,5 +97,5 @@ export default {
   // 添加一个通用的request方法，支持完整的配置对象
   request(config: any) {
     return service(config)
-  }
+  },
 }

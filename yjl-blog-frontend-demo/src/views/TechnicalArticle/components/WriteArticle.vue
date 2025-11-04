@@ -1,41 +1,49 @@
 <template>
   <div class="write-article-container">
-    <el-button @click="router.back()" size="large" link style="margin-bottom: 20px">
+    <el-button @click="goBack" size="large" link style="margin-bottom: 20px">
       <el-icon><ArrowLeft /></el-icon>
       返回
     </el-button>
 
     <el-card class="write-article-card">
       <template #header>
-        <ArticleHeader v-model="article.title" @save="handleSave" @publish="handlePublish" />
+        <ArticleHeader
+          v-model="article.title"
+          @save="handleSave"
+          @publish="handlePublish"
+          :disabled="isLoading"
+        />
       </template>
 
       <!-- 文章设置面板 -->
       <el-collapse v-model="activeNames" style="margin-bottom: 20px">
         <el-collapse-item title="文章设置" name="1">
-          <el-form :model="articleSettings" label-width="80px">
+          <el-form label-width="80px">
             <el-form-item label="分类">
-              <el-select 
-                v-model="article.category" 
-                placeholder="请选择分类" 
+              <el-select
+                v-model="article.categoryId"
+                placeholder="请选择分类"
                 style="width: 100%"
                 clearable
                 :loading="!article.categories.length"
                 :disabled="!article.categories.length"
+                @change="handleCategoryChange"
               >
                 <el-option
                   v-for="cat in article.categories"
                   :key="cat.id"
                   :label="cat.name"
-                  :value="cat.name"
+                  :value="cat.id"
                 />
                 <template v-if="!article.categories.length" #empty>
-                  <div style="padding: 10px; text-align: center; color: #909399;">
+                  <div style="padding: 10px; text-align: center; color: #909399">
                     {{ article.categories.length === 0 ? '暂无分类' : '分类加载失败' }}
                   </div>
                 </template>
               </el-select>
-              <el-button size="small" @click="testLoadCategories" style="margin-left: 10px;">测试加载分类</el-button>
+              <el-button size="small" @click="testLoadCategories" style="margin-left: 10px"
+                >测试加载分类</el-button
+              >
             </el-form-item>
             <el-form-item label="标签">
               <el-tag
@@ -66,7 +74,7 @@
                 :before-upload="beforeCoverUpload"
                 :http-request="uploadCover"
               >
-                <img v-if="article.coverImage" :src="article.coverImage" class="cover-image" />
+                <img v-if="article.coverUrl" :src="article.coverUrl" class="cover-image" />
                 <el-icon v-else class="cover-upload-icon"><Plus /></el-icon>
               </el-upload>
             </el-form-item>
@@ -74,12 +82,19 @@
         </el-collapse-item>
       </el-collapse>
 
-      <RichTextEditor
-        ref="richTextEditor"
-        v-model="article.content"
-        placeholder="请输入文章内容..."
-        @insert-image="showImageDialog = true"
-      />
+      <!-- 文章内容编辑器 -->
+      <div v-loading="isLoading" element-loading-text="正在加载文章内容...">
+        <RichTextEditor
+          v-if="!isEditMode || article.content"
+          ref="richTextEditor"
+          v-model="article.content"
+          placeholder="请输入文章内容..."
+          @insert-image="showImageDialog = true"
+        />
+      </div>
+      <div v-if="isEditMode && !article.content" style="color: red; padding: 10px">
+        调试信息: 内容为空，isLoading: {{ isLoading }}, 内容长度: {{ article.content?.length }}
+      </div>
     </el-card>
 
     <ImageUploadDialog v-model="showImageDialog" @confirm="handleImageInsert" />
@@ -89,32 +104,101 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { useArticleStore } from '@/stores/article.ts'
-import { useAuthStore } from '@/stores/auth'
 import { ElMessage } from 'element-plus'
 import ArticleHeader from './writeArticle/ArticleHeader.vue'
 import RichTextEditor from './RichTextEditor.vue'
 import ImageUploadDialog from './ImageUploadDialog.vue'
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, watch } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import { uploadImage } from '@/utils/upload-config'
+import { getArticleDetail } from '@/apis/articles'
 
 const router = useRouter()
 const article = useArticleStore()
-const authStore = useAuthStore()
 const showImageDialog = ref(false)
 const richTextEditor = ref()
 const activeNames = ref(['1'])
 const inputVisible = ref(false)
 const inputValue = ref('')
 const saveTagInput = ref()
+const isEditMode = ref(false)
+const editArticleId = ref<string | null>(null)
+const isLoading = ref(false)
+
+// 加载文章数据（编辑模式）
+const loadArticleForEdit = async (articleId: string) => {
+  isLoading.value = true
+  try {
+    const response = await getArticleDetail(articleId)
+
+    if (!response || !response.data) {
+      throw new Error('文章数据为空')
+    }
+
+    const articleData = response.data
+
+    // 使用文章存储的setArticle方法填充数据
+    article.setArticle({
+      title: articleData.title || '',
+      content: articleData.content || '',
+      tags: articleData.tags || [],
+      category: articleData.categoryName || '',
+      categoryId: articleData.categoryId,
+      description: articleData.description || '',
+      coverUrl: articleData.coverUrl || '',
+      status: articleData.status || 0,
+      views: articleData.views || 0,
+      likeCount: articleData.likeCount || 0,
+      commentCount: articleData.commentCount || 0,
+    })
+
+    // 等待DOM更新完成后再继续
+    await nextTick()
+  } catch (error) {
+    console.error('加载文章数据失败:', error)
+    ElMessage.error('加载文章数据失败')
+    // 如果加载失败，跳转回文章列表
+    router.push('/article')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// 监听路由变化，确保在切换模式时正确处理
+watch(
+  () => router.currentRoute.value.query.id,
+  (newId, oldId) => {
+    if (newId) {
+      // 切换到编辑模式
+      isEditMode.value = true
+      editArticleId.value = newId as string
+      loadArticleForEdit(newId as string)
+    } else if (oldId && !newId) {
+      // 从编辑模式切换到新建模式
+      article.resetArticle()
+      isEditMode.value = false
+      editArticleId.value = null
+    }
+  },
+)
 
 // 加载分类数据
 onMounted(async () => {
-  console.log('WriteArticle组件挂载，开始加载分类数据...')
-  
+  // 检查是否为编辑模式
+  const queryId = router.currentRoute.value.query.id as string
+  if (queryId) {
+    isEditMode.value = true
+    editArticleId.value = queryId
+    await loadArticleForEdit(queryId)
+  } else {
+    // 新建文章模式 - 重置所有数据
+    article.resetArticle()
+    isEditMode.value = false
+    editArticleId.value = null
+  }
+
   try {
     await article.loadCategories()
-    console.log('分类数据加载完成，数量:', article.categories.length)
   } catch (error) {
     console.error('分类数据加载失败:', error)
     ElMessage.error('分类数据加载失败')
@@ -122,7 +206,6 @@ onMounted(async () => {
 })
 
 const handleImageInsert = (imageUrl: string) => {
-  console.log('WriteArticle: ', imageUrl)
   // 调用子组件的插入图片方法
   richTextEditor.value?.insertImage(imageUrl)
 }
@@ -130,8 +213,15 @@ const handleImageInsert = (imageUrl: string) => {
 // 保存草稿
 const handleSave = async () => {
   try {
-    await article.saveArticles(false)
-    ElMessage.success('草稿保存成功')
+    if (isEditMode.value && editArticleId.value) {
+      // 编辑模式 - 更新文章（保存为草稿）
+      await article.updateArticle(editArticleId.value, false)
+      ElMessage.success('草稿更新成功')
+    } else {
+      // 新建模式 - 保存草稿
+      await article.saveArticles(false)
+      ElMessage.success('草稿保存成功')
+    }
   } catch (error) {
     ElMessage.error((error as Error).message)
   }
@@ -140,9 +230,16 @@ const handleSave = async () => {
 // 发布文章
 const handlePublish = async () => {
   try {
-    await article.saveArticles(true)
-    ElMessage.success('文章发布成功')
-    router.push('/articles')
+    if (isEditMode.value && editArticleId.value) {
+      // 编辑模式 - 更新文章
+      await article.updateArticle(editArticleId.value)
+      ElMessage.success('文章更新成功')
+    } else {
+      // 新建模式 - 发布文章
+      await article.saveArticles(true)
+      ElMessage.success('文章发布成功')
+    }
+    router.push('/article')
   } catch (error) {
     ElMessage.error((error as Error).message)
   }
@@ -150,7 +247,7 @@ const handlePublish = async () => {
 
 // 标签管理
 const removeTag = (tag: string) => {
-  article.tags = article.tags.filter(t => t !== tag)
+  article.tags = article.tags.filter((t) => t !== tag)
 }
 
 const showInput = () => {
@@ -187,7 +284,7 @@ const beforeCoverUpload = (file: File) => {
 const uploadCover = async (options: any) => {
   try {
     const imageUrl = await uploadImage(options.file)
-    article.coverImage = imageUrl
+    article.coverUrl = imageUrl
     ElMessage.success('封面图上传成功')
   } catch (error) {
     ElMessage.error('封面图上传失败: ' + ((error as Error)?.message || '未知错误'))
@@ -195,12 +292,31 @@ const uploadCover = async (options: any) => {
   }
 }
 
+// 分类变化处理函数
+const handleCategoryChange = (categoryId: number | undefined) => {
+  if (categoryId) {
+    const selectedCategory = article.categories.find((cat) => cat.id === categoryId)
+    article.category = selectedCategory?.name || ''
+  } else {
+    article.category = ''
+  }
+}
+
+// 返回按钮点击事件
+const goBack = () => {
+  // 清除编辑模式状态
+  if (isEditMode.value) {
+    isEditMode.value = false
+    editArticleId.value = null
+    article.resetArticle() // 重置文章数据
+  }
+  router.back()
+}
+
 // 测试加载分类的手动函数
 const testLoadCategories = async () => {
-  console.log('手动测试加载分类...')
   try {
     await article.loadCategories()
-    console.log('手动加载成功，分类数量:', article.categories.length)
     ElMessage.success(`成功加载 ${article.categories.length} 个分类`)
   } catch (error) {
     console.error('手动加载失败:', error)
