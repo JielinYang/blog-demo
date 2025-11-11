@@ -1,14 +1,18 @@
 // MinIO配置
 import * as Minio from "minio";
+import dotenv from "dotenv";
 
-// MinIO配置信息
+// 加载环境变量
+dotenv.config();
+
+// MinIO配置信息（从环境变量读取）
 const minioConfig = {
-  endPoint: "192.168.101.128",
-  port: 19000,
-  useSSL: false,
-  accessKey: "minio",
-  secretKey: "sD6yrbnJTnE6Rmca",
-  bucketName: "blog-images",
+  endPoint: process.env.MINIO_ENDPOINT,
+  port: parseInt(process.env.MINIO_PORT),
+  useSSL: process.env.MINIO_USE_SSL === "true",
+  accessKey: process.env.MINIO_ACCESS_KEY,
+  secretKey: process.env.MINIO_SECRET_KEY,
+  bucketName: process.env.MINIO_BUCKET_NAME,
 };
 
 // 创建MinIO客户端实例
