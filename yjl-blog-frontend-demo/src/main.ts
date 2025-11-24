@@ -12,6 +12,14 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import 'element-plus/theme-chalk/src/message.scss'
 
+// 环境配置验证
+import { validateEnvironmentConfig } from '@/config'
+
+// 在开发环境下验证配置
+if (import.meta.env.DEV) {
+  validateEnvironmentConfig()
+}
+
 // api测试
 import { getTest } from './apis/testApi'
 getTest()

@@ -3,12 +3,13 @@
 import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
 import router from '@/router'
+import { serverConfig } from '@/config/server'
 
 // 创建axios实例
 const service = axios.create({
-  baseURL: 'http://localhost:3000',
-  timeout: 5000,
-  headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+  baseURL: serverConfig.baseURL,
+  timeout: serverConfig.timeout,
+  headers: serverConfig.headers,
 })
 
 // 请求拦截器

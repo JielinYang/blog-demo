@@ -1,15 +1,13 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { uploadToQiniu } from './qiniu'
 import { uploadToMinio } from './minio'
 
-// 上传方式枚举
+// 上传方式枚举（现在只支持MinIO）
 export enum UploadMethod {
-  QINIU = 'qiniu',
   MINIO = 'minio'
 }
 
-// 当前使用的上传方式
+// 当前使用的上传方式（固定为MinIO）
 const currentMethod = ref<UploadMethod>(UploadMethod.MINIO)
 
 // 获取当前上传方式
@@ -17,42 +15,28 @@ export const getCurrentUploadMethod = (): UploadMethod => {
   return currentMethod.value
 }
 
-// 设置上传方式
+// 设置上传方式（现在只能设置为MinIO）
 export const setUploadMethod = (method: UploadMethod): void => {
+  if (method !== UploadMethod.MINIO) {
+    ElMessage.warning('目前只支持MinIO上传方式')
+    return
+  }
   currentMethod.value = method
-  ElMessage.success(`已切换到${method === UploadMethod.QINIU ? '七牛云' : 'MinIO'}上传方式`)
+  ElMessage.success('已切换到MinIO上传方式')
 }
 
-// 通用图片上传函数
+// 通用图片上传函数（现在只使用MinIO）
 export const uploadImage = async (file: File): Promise<string> => {
   try {
-    let imageUrl: string
-    
-    switch (currentMethod.value) {
-      case UploadMethod.QINIU:
-        imageUrl = await uploadToQiniu(file)
-        break
-      case UploadMethod.MINIO:
-        imageUrl = await uploadToMinio(file)
-        break
-      default:
-        throw new Error('未知的上传方式')
-    }
-    
-    return imageUrl
+    return await uploadToMinio(file)
   } catch (error) {
     console.error('图片上传失败:', error)
     throw error
   }
 }
 
-// 获取上传方式配置选项
+// 获取上传方式配置选项（现在只返回MinIO）
 export const getUploadMethodOptions = () => [
-  {
-    label: '七牛云',
-    value: UploadMethod.QINIU,
-    description: '使用七牛云对象存储服务'
-  },
   {
     label: 'MinIO',
     value: UploadMethod.MINIO,

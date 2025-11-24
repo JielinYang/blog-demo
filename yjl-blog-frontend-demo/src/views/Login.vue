@@ -6,7 +6,7 @@
           <h2>用户登录</h2>
         </div>
       </template>
-      
+
       <el-form
         ref="loginFormRef"
         :model="loginForm"
@@ -22,7 +22,7 @@
             clearable
           />
         </el-form-item>
-        
+
         <el-form-item label="密码" prop="password">
           <el-input
             v-model="loginForm.password"
@@ -34,7 +34,7 @@
             @keyup.enter="handleLogin"
           />
         </el-form-item>
-        
+
         <el-form-item>
           <el-button
             type="primary"
@@ -45,7 +45,7 @@
             登录
           </el-button>
         </el-form-item>
-        
+
         <div class="login-footer">
           <span>还没有账号？</span>
           <router-link to="/register" class="register-link">立即注册</router-link>
@@ -59,7 +59,6 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
-import { User, Lock } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/auth'
 import type { LoginForm } from '@/types/auth'
 
@@ -72,29 +71,29 @@ const loginFormRef = ref<FormInstance>()
 // 登录表单数据
 const loginForm = reactive<LoginForm>({
   username: '',
-  password: ''
+  password: '',
 })
 
 // 表单验证规则
 const loginRules: FormRules = {
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 3, max: 20, message: '用户名长度在 3 到 20 个字符', trigger: 'blur' }
+    { min: 3, max: 20, message: '用户名长度在 3 到 20 个字符', trigger: 'blur' },
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' }
-  ]
+    { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' },
+  ],
 }
 
 // 登录处理
 const handleLogin = async () => {
   if (!loginFormRef.value) return
-  
+
   await loginFormRef.value.validate(async (valid) => {
     if (valid) {
       const result = await authStore.doLogin(loginForm)
-      
+
       if (result.success) {
         ElMessage.success('登录成功')
         // 根据用户角色跳转到不同页面

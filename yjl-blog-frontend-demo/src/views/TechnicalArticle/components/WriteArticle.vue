@@ -112,6 +112,7 @@ import { ref, onMounted, nextTick, watch } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import { uploadImage } from '@/utils/upload-config'
 import { getArticleDetail } from '@/apis/articles'
+import { Article } from '@/models/Article'
 
 const router = useRouter()
 const article = useArticleStore()
@@ -138,19 +139,20 @@ const loadArticleForEdit = async (articleId: string) => {
     const articleData = response.data
 
     // 使用文章存储的setArticle方法填充数据
-    article.setArticle({
-      title: articleData.title || '',
-      content: articleData.content || '',
-      tags: articleData.tags || [],
-      category: articleData.categoryName || '',
-      categoryId: articleData.categoryId,
-      description: articleData.description || '',
-      coverUrl: articleData.coverUrl || '',
-      status: articleData.status || 0,
-      views: articleData.views || 0,
-      likeCount: articleData.likeCount || 0,
-      commentCount: articleData.commentCount || 0,
-    })
+    article.setArticle(
+      new Article({
+        title: articleData.title || '',
+        content: articleData.content || '',
+        tags: articleData.tags || [],
+        categoryId: articleData.categoryId,
+        description: articleData.description || '',
+        coverUrl: articleData.coverUrl || '',
+        status: articleData.status || 0,
+        views: articleData.views || 0,
+        likeCount: articleData.likeCount || 0,
+        commentCount: articleData.commentCount || 0,
+      }),
+    )
 
     // 等待DOM更新完成后再继续
     await nextTick()

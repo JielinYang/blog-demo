@@ -47,24 +47,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import {
-  ArrowLeft,
-  User,
-  View,
-  Clock,
-  Picture,
-  Loading,
-  Edit,
-  Delete,
-  ChatDotRound,
-  Star,
-} from '@element-plus/icons-vue'
+import { ArrowLeft, View, Clock, Edit, Delete, ChatDotRound, Star } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getArticleDetail, deleteArticle as deleteArticleApi } from '@/apis/articles'
 import { useAuthStore } from '@/stores/auth'
-import type { Article } from '@/models/Article'
+import { Article } from '@/models/Article'
 
 const route = useRoute()
 const router = useRouter()
@@ -98,7 +87,7 @@ const fetchArticleDetail = async () => {
     }
 
     // 数据适配，处理字段映射 - 根据后端实际返回的字段进行适配
-    article.value = {
+    article.value = new Article({
       id: responseData.id || 0,
       title: responseData.title || '无标题',
       content: responseData.content || '',
@@ -116,7 +105,7 @@ const fetchArticleDetail = async () => {
       isTop: responseData.is_top || false, // 后端返回的是is_top字段
       createTime: responseData.createTime || new Date().toISOString(),
       updateTime: responseData.updateTime || new Date().toISOString(),
-    }
+    })
   } catch (error) {
     console.error('Error fetching article detail:', error)
     ElMessage.error('获取文章详情失败')

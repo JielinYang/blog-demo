@@ -6,7 +6,7 @@
           <h2>用户注册</h2>
         </div>
       </template>
-      
+
       <el-form
         ref="registerFormRef"
         :model="registerForm"
@@ -22,7 +22,7 @@
             clearable
           />
         </el-form-item>
-        
+
         <el-form-item label="邮箱" prop="email">
           <el-input
             v-model="registerForm.email"
@@ -31,7 +31,7 @@
             clearable
           />
         </el-form-item>
-        
+
         <el-form-item label="密码" prop="password">
           <el-input
             v-model="registerForm.password"
@@ -42,7 +42,7 @@
             clearable
           />
         </el-form-item>
-        
+
         <el-form-item label="确认密码" prop="confirmPassword">
           <el-input
             v-model="registerForm.confirmPassword"
@@ -54,18 +54,14 @@
             @keyup.enter="handleRegister"
           />
         </el-form-item>
-        
+
         <el-form-item label="角色" prop="role">
-          <el-select
-            v-model="registerForm.role"
-            placeholder="请选择角色"
-            class="role-select"
-          >
+          <el-select v-model="registerForm.role" placeholder="请选择角色" class="role-select">
             <el-option label="普通用户" value="user" />
             <el-option label="管理员" value="admin" />
           </el-select>
         </el-form-item>
-        
+
         <el-form-item>
           <el-button
             type="primary"
@@ -76,7 +72,7 @@
             注册
           </el-button>
         </el-form-item>
-        
+
         <div class="register-footer">
           <span>已有账号？</span>
           <router-link to="/login" class="login-link">立即登录</router-link>
@@ -90,7 +86,6 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
-import { User, Lock, Message } from '@element-plus/icons-vue'
 import { register } from '@/apis/auth'
 import type { RegisterForm } from '@/types/auth'
 
@@ -108,7 +103,7 @@ const registerForm = reactive<RegisterForm>({
   email: '',
   password: '',
   confirmPassword: '',
-  role: 'user' // 默认为普通用户
+  role: 'user', // 默认为普通用户
 })
 
 // 自定义验证规则：确认密码
@@ -124,45 +119,43 @@ const validateConfirmPassword = (rule: any, value: string, callback: any) => {
 const registerRules: FormRules = {
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 3, max: 20, message: '用户名长度在 3 到 20 个字符', trigger: 'blur' }
+    { min: 3, max: 20, message: '用户名长度在 3 到 20 个字符', trigger: 'blur' },
   ],
   email: [
     { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
+    { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] },
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' }
+    { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' },
   ],
   confirmPassword: [
     { required: true, message: '请再次输入密码', trigger: 'blur' },
-    { validator: validateConfirmPassword, trigger: 'blur' }
+    { validator: validateConfirmPassword, trigger: 'blur' },
   ],
-  role: [
-    { required: true, message: '请选择角色', trigger: 'change' }
-  ]
+  role: [{ required: true, message: '请选择角色', trigger: 'change' }],
 }
 
 // 注册处理
 const handleRegister = async () => {
   if (!registerFormRef.value) return
-  
+
   await registerFormRef.value.validate(async (valid) => {
     if (valid) {
       try {
         isLoading.value = true
-        
+
         // 准备注册数据，不包含confirmPassword
         const registerData = {
           username: registerForm.username,
           email: registerForm.email,
           password: registerForm.password,
-          role: registerForm.role
+          role: registerForm.role,
         }
-        
+
         // 调用注册API
-        const res = await register(registerData)
-        
+        const res = (await register(registerData)) as any
+
         if (res.success) {
           ElMessage.success('注册成功，请登录')
           router.push('/login')

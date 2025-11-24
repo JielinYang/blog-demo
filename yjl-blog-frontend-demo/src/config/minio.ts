@@ -1,6 +1,7 @@
 /**
  * MinIO配置文件
  * 统一管理MinIO相关的配置信息
+ * 配置信息从环境变量读取，提高安全性
  */
 
 export interface MinioConfig {
@@ -12,14 +13,14 @@ export interface MinioConfig {
   protocol: string
 }
 
-// MinIO配置对象
+// 从环境变量读取MinIO配置
 export const minioConfig: MinioConfig = {
-  endpoint: '192.168.101.128:19000',
-  accessKey: 'minio',
-  secretKey: 'nrzaKwM6HE5z3w4N',
-  bucketName: 'blog-images',
-  useSSL: false,
-  protocol: 'http'
+  endpoint: import.meta.env.VITE_MINIO_ENDPOINT,
+  accessKey: import.meta.env.VITE_MINIO_ACCESS_KEY,
+  secretKey: import.meta.env.VITE_MINIO_SECRET_KEY,
+  bucketName: import.meta.env.VITE_MINIO_BUCKET,
+  useSSL: import.meta.env.VITE_MINIO_USE_SSL === 'true',
+  protocol: import.meta.env.VITE_MINIO_PROTOCOL,
 }
 
 /**
@@ -49,7 +50,7 @@ export const getDefaultCoverImages = (): string[] => {
     'default_article_cover1.png',
     'default_article_cover2.png',
     'default_article_cover3.png',
-    'default_article_cover4.png'
+    'default_article_cover4.png',
   ]
 }
 
@@ -60,7 +61,7 @@ export const getDefaultCoverImages = (): string[] => {
  */
 export const getDefaultCoverImageByArticleId = (articleId: number = 0): string => {
   const defaultImages = getDefaultCoverImages()
-  const randomIndex = (articleId % defaultImages.length)
+  const randomIndex = articleId % defaultImages.length
   const fileName = defaultImages[randomIndex]
   return getDefaultCoverImageUrl(fileName)
 }

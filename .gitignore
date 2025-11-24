@@ -2,3 +2,8 @@ node_modules/
 dist/
 .env
 .vscode/
+
+.env.production
+.env.development
+.env.local
+.env.*.local

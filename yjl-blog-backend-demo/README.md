@@ -7,7 +7,7 @@
 - ✅ **文章管理**: 文章的创建、编辑、删除、分页查询
 - ✅ **分类管理**: 分类的增删改查功能
 - ✅ **文件上传**: 支持单张和多张图片上传，包含文件验证
-- ✅ **七牛云存储**: 集成七牛云对象存储服务
+- ✅ **MinIO存储**: 集成MinIO对象存储服务
 - ✅ **安全过滤**: HTML内容安全过滤，防止XSS攻击
 - ✅ **文件验证**: 文件类型、大小、完整性验证
 - ✅ **接口限流**: 不同接口的访问频率限制
@@ -21,7 +21,7 @@
 - **认证**: JWT (JSON Web Token)
 - **文件上传**: Multer
 - **安全**: DOMPurify + JSDOM
-- **云存储**: 七牛云
+- **云存储**: MinIO
 - **限流**: express-rate-limit
 
 ## 快速开始
@@ -40,7 +40,7 @@ npm install
 cp .env.example .env
 ```
 
-编辑 `.env` 文件，设置数据库连接、JWT密钥、七牛云配置等。
+编辑 `.env` 文件，设置数据库连接、JWT密钥、MinIO配置等。
 
 ### 3. 配置数据库
 
@@ -92,10 +92,12 @@ npm start
 - `DELETE /api/upload/file/:filename` - 删除文件（需管理员权限）
 - `GET /api/upload/files` - 获取文件列表（需管理员权限）
 
-### 七牛云接口
+### 文件存储接口
 
-- `GET /api/qiniu/token` - 获取上传令牌
-- `POST /api/qiniu/upload` - 上传文件到七牛云
+- `POST /api/upload/image` - 上传单张图片（需认证，带限流）
+- `POST /api/upload/images` - 上传多张图片（需认证，带限流）
+- `DELETE /api/upload/file/:filename` - 删除文件（需管理员权限）
+- `GET /api/upload/files` - 获取文件列表（需管理员权限）
 
 ### 系统接口
 
@@ -123,10 +125,11 @@ npm start
 | DB_PASSWORD | 数据库密码 | - |
 | JWT_SECRET | JWT密钥 | - |
 | JWT_EXPIRES_IN | JWT过期时间 | 24h |
-| QINIU_ACCESS_KEY | 七牛云AccessKey | - |
-| QINIU_SECRET_KEY | 七牛云SecretKey | - |
-| QINIU_BUCKET | 七牛云存储空间 | - |
-| QINIU_DOMAIN | 七牛云域名 | - |
+| MINIO_ENDPOINT | MinIO服务地址 | localhost |
+| MINIO_PORT | MinIO服务端口 | 9000 |
+| MINIO_ACCESS_KEY | MinIO访问密钥 | - |
+| MINIO_SECRET_KEY | MinIO密钥 | - |
+| MINIO_BUCKET | MinIO存储桶 | blog-files |
 
 ## 开发建议
 
@@ -138,7 +141,7 @@ npm start
 ## 注意事项
 
 1. 生产环境请修改JWT密钥和数据库密码
-2. 七牛云配置需要先在七牛云控制台创建存储空间
+2. MinIO配置需要先启动MinIO服务并创建存储桶
 3. 建议配置HTTPS和反向代理（如Nginx）
 4. 定期备份数据库和重要文件
 

@@ -27,7 +27,7 @@ export const useAuthStore = defineStore('auth', () => {
   const initAuth = async () => {
     if (token.value) {
       try {
-        const res = await getCurrentUser()
+        const res: any = await getCurrentUser()
         if (res.success) {
           user.value = res.data
         } else {
@@ -44,7 +44,7 @@ export const useAuthStore = defineStore('auth', () => {
   const doLogin = async (loginForm: LoginForm) => {
     try {
       isLoading.value = true
-      const res = await login(loginForm)
+      const res: any = await login(loginForm)
 
       console.log('登录响应:', res)
 
@@ -106,7 +106,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     try {
-      const res = await refreshToken(refreshTokenValue.value)
+      const res: any = await refreshToken(refreshTokenValue.value)
       if (res.success) {
         token.value = res.data.token
         localStorage.setItem('token', res.data.token)

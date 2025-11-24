@@ -36,6 +36,8 @@ export default defineConfigWithVueTs(
       // 强制要求多单词组件名
       'vue/multi-word-component-names': 0,
       'vue/block-lang': ['error'],
+      // 关闭 any 类型检查
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
 )

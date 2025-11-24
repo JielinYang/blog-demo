@@ -1,15 +1,9 @@
 <template>
   <el-dialog v-model="visible" title="插入图片" width="500px" :close-on-click-modal="false">
-    <!-- 上传方式切换 -->
-    <div class="upload-method-selector">
-      <span class="selector-label">上传方式：</span>
-      <el-radio-group v-model="currentMethod" size="small" @change="handleMethodChange">
-        <el-radio-button label="minio">MinIO</el-radio-button>
-        <el-radio-button label="qiniu">七牛云</el-radio-button>
-      </el-radio-group>
-      <el-tooltip content="切换图片上传方式" placement="top">
-        <el-icon class="help-icon"><InfoFilled /></el-icon>
-      </el-tooltip>
+    <!-- 上传方式信息 -->
+    <div class="upload-method-info">
+      <el-icon class="info-icon"><InfoFilled /></el-icon>
+      <span>当前使用：MinIO自建对象存储服务</span>
     </div>
     
     <el-tabs v-model="activeTab">
@@ -31,7 +25,6 @@
         </el-upload>
         <div class="upload-tip">点击上方区域选择图片</div>
         <div class="upload-info">支持JPG、JPEG、PNG、GIF和WEBP格式，大小不超过5MB</div>
-        <div class="method-info">当前使用：{{ currentMethod === 'qiniu' ? '七牛云对象存储' : 'MinIO自建存储' }}</div>
       </el-tab-pane>
       <el-tab-pane label="图片URL" name="url">
         <el-input v-model="urlInput" placeholder="请输入图片URL" clearable />
@@ -64,7 +57,7 @@ import { ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Plus, Loading, Picture, InfoFilled } from '@element-plus/icons-vue'
 import { checkImageType, checkImageSize } from '@/utils/file.ts'
-import { uploadImage, UploadMethod, currentMethod } from '@/utils/upload-config'
+import { uploadImage } from '@/utils/upload-config'
 
 const props = defineProps({
   modelValue: Boolean,
@@ -84,11 +77,6 @@ watch(
   () => props.modelValue,
   (val) => (visible.value = val),
 )
-
-// 处理上传方式切换
-const handleMethodChange = (method: UploadMethod) => {
-  ElMessage.success(`已切换到${method === UploadMethod.QINIU ? '七牛云' : 'MinIO'}上传方式`)
-}
 
 // 验证URL是否有效
 const isValidUrl = (url: string): boolean => {
@@ -160,35 +148,25 @@ const close = () => {
 </script>
 
 <style scoped>
-/* 上传方式选择器 */
-.upload-method-selector {
+/* 上传方式信息 */
+.upload-method-info {
   display: flex;
   align-items: center;
   margin-bottom: 20px;
   padding: 10px;
-  background-color: #f5f7fa;
+  background-color: #f0f9ff;
   border-radius: 4px;
+  border-left: 4px solid #409eff;
 }
 
-.selector-label {
+.info-icon {
+  margin-right: 8px;
+  color: #409eff;
+}
+
+.upload-method-info span {
   font-size: 14px;
   color: #606266;
-  margin-right: 10px;
-  font-weight: 500;
-}
-
-.help-icon {
-  margin-left: 10px;
-  color: #909399;
-  cursor: help;
-}
-
-/* 上传方式信息 */
-.method-info {
-  text-align: center;
-  margin-top: 5px;
-  color: #67c23a;
-  font-size: 12px;
   font-weight: 500;
 }
 
