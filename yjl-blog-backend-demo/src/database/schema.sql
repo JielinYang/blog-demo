@@ -24,6 +24,9 @@ create index idx_category
 create index idx_status
     on articles (status);
 
+INSERT INTO articles (title, content, category_id, views, like_count, comment_count, status, cover_url, description, is_top) VALUES ('文章初始化测试1', 'Terminatio quo quos color comedo despecto tabula. Bos conicio conor cui audentia creta textus voluptatem speciosus combibo. Cohaero bene concedo decens coniuratio repellat vulnero. Voluptates vitae verto defetiscor aggero antiquus clam aegrotatio demens. Voluntarius spectaculum vos vacuus cetera textilis charisma trepide.', 2, 3310, 3587, 68, 0, 'https://loremflickr.com/800/400?lock=3166031086821370', 'Terminatio quo quos color comedo despecto tabula. Bos conicio conor cui audentia creta textus voluptatem speciosus combibo. Cohaero bene concedo decens coniuratio repellat vulnero. Voluptates vitae verto defetiscor aggero antiquus clam aegrotatio dem', 1);
+INSERT INTO articles (title, content, category_id, views, like_count, comment_count, status, cover_url, description, is_top) VALUES ('文章初始化测试2', 'Derelinquo aestas vespillo mollitia conculco animadverto. Cado vetus surgo numquam. Volup testimonium tergo quisquam derideo tabula. Antiquus damnatio condico undique cohors adduco spero vae. Convoco abstergo vulgivagus surculus dapifer civis caritas theatrum.', 1, 6517, 3780, 155, 1, 'https://picsum.photos/seed/NChsoDty02/800/400', 'Derelinquo aestas vespillo mollitia conculco animadverto. Cado vetus surgo numquam. Volup testimonium tergo quisquam derideo tabula. Antiquus damnatio condico undique cohors adduco spero vae. Convoco abstergo vulgivagus surculus dapifer civis caritas', 0);
+INSERT INTO articles (title, content, category_id, views, like_count, comment_count, status, cover_url, description, is_top) VALUES ('文章初始化测试3', '<p>技术分享333333 Decimus decerno correptius summa bis totidem. Certe caterva expedita vestrum. Cohaero carcer fuga confugo. Cuius solio deserunt tero vomito fuga quibusdam cribro. Cibo vos curatio patrocinor neque minima soluta ulciscor angelus.</p>', 1, 0, 0, 0, 1, 'https://loremflickr.com/800/400?lock=6852475741619517', 'Decimus decerno correptius summa bis totidem. Certe caterva expedita vestrum. Cohaero carcer fuga confugo. Cuius solio deserunt tero vomito fuga quibusdam cribro. Cibo vos curatio patrocinor neque minima soluta ulciscor angelus.', 1);
 
 
 -- auto-generated definition
@@ -47,3 +50,7 @@ create index idx_article_count
 create index idx_name
     on categories (name);
 
+INSERT INTO categories (name, description) VALUES ('技术分享', '分享技术文章、编程经验、开发心得等');
+INSERT INTO categories (name, description) VALUES ('生活随笔', '记录日常生活、感悟、思考等');
+INSERT INTO categories (name, description) VALUES ('学习笔记', '学习过程中的笔记、总结、心得体会');
+INSERT INTO categories (name, description) VALUES ('项目总结', '项目开发过程中的经验总结、技术方案等');

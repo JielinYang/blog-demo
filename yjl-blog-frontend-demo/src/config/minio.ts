@@ -29,7 +29,8 @@ export const minioConfig: MinioConfig = {
  */
 export const getMinioBaseUrl = (): string => {
   const { protocol, endpoint, bucketName } = minioConfig
-  return `${protocol}://${endpoint}/${bucketName}`
+  const port = import.meta.env.VITE_MINIO_PORT || '19000'
+  return `${protocol}://${endpoint}:${port}/${bucketName}`
 }
 
 /**
