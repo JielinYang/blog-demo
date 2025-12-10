@@ -90,7 +90,7 @@ export const checkDatabase = async () => {
     console.log("✓ 数据库连接正常");
     
     // 检查必需的表是否存在
-    const requiredTables = ["articles", "categories"];
+    const requiredTables = ["articles", "categories", "life_fragments"];
     for (const tableName of requiredTables) {
       const [tables] = await pool.query(
         "SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = ?",

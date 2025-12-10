@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { saveArticle } from '@/apis/articles'
-import { getCategories } from '@/apis/articles'
+import { getCategories, getArticles } from '@/apis/articles'
 import type { Article } from '@/models/Article'
 
 export const useArticleStore = defineStore('article', () => {
@@ -17,6 +17,7 @@ export const useArticleStore = defineStore('article', () => {
   const likeCount = ref(0)
   const commentCount = ref(0)
   const categories = ref<Array<{ id: number; name: string }>>([])
+  const articleList = ref<Article[]>([])
 
   // 生成摘要
   const generateDescription = () => {
@@ -109,6 +110,23 @@ export const useArticleStore = defineStore('article', () => {
     }
   }
 
+  // 获取文章列表
+  const getArticleList = async (page: number = 1, limit: number = 6) => {
+    try {
+      const res = await getArticles(page, limit)
+      console.log('获取文章列表响应:', res)
+      // 根据实际API响应结构: data.articles.data
+      if (res.data && res.data.articles && res.data.articles.data) {
+        articleList.value = res.data.articles.data
+        console.log('文章列表已更新:', articleList.value)
+      }
+      return res
+    } catch (error) {
+      console.error('获取文章列表失败:', error)
+      throw error
+    }
+  }
+
   // 重置文章数据
   const resetArticle = () => {
     title.value = ''
@@ -164,5 +182,7 @@ export const useArticleStore = defineStore('article', () => {
     setArticle,
     loadCategories,
     generateDescription,
+    articleList,
+    getArticleList,
   }
 })

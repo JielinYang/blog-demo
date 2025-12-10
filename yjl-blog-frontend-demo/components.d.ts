@@ -15,6 +15,7 @@ declare module 'vue' {
     ElCollapse: typeof import('element-plus/es')['ElCollapse']
     ElCollapseItem: typeof import('element-plus/es')['ElCollapseItem']
     ElContainer: typeof import('element-plus/es')['ElContainer']
+    ElDatePicker: typeof import('element-plus/es')['ElDatePicker']
     ElDialog: typeof import('element-plus/es')['ElDialog']
     ElDropdown: typeof import('element-plus/es')['ElDropdown']
     ElDropdownItem: typeof import('element-plus/es')['ElDropdownItem']
@@ -46,6 +47,7 @@ declare module 'vue' {
     ParticleEffect: typeof import('./src/components/ParticleEffect/ParticleEffect.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    StarryNightFlow: typeof import('./src/components/StarryNightFlow.vue')['default']
     UnderlineAnimation: typeof import('./src/components/UnderlineAnimation.vue')['default']
   }
   export interface ComponentCustomProperties {

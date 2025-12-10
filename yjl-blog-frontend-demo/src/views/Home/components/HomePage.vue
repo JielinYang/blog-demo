@@ -2,18 +2,18 @@
   <el-container class="top-container">
     <el-space :size="100" alignment="center">
       <el-space direction="vertical" :size="28" style="width: 60rem">
-        <el-text style="font-size: 60px"> FBranch's Blog </el-text>
-        <el-text style="font-size: 60px"> {{ displayedText }} </el-text>
+        <el-text class="title-text"> FBranch's Blog </el-text>
+        <el-text class="typing-text"> {{ displayedText }} </el-text>
       </el-space>
-      <el-card style="max-width: 480px">
+      <!-- <el-card style="max-width: 480px">
         <template #header>My Introduce</template>
         <img src="@/assets/img/starry-sky.png" style="width: 100%" />
-      </el-card>
+      </el-card> -->
     </el-space>
   </el-container>
   <el-container class="bottom-container">
-    <el-text>下滑查看更多</el-text>
-    <el-icon><ArrowDown style="width: 2em; height: 2em" /></el-icon>
+    <el-text class="scroll-text">下滑查看更多</el-text>
+    <el-icon class="scroll-icon"><ArrowDown style="width: 2em; height: 2em" /></el-icon>
   </el-container>
 </template>
 
@@ -53,6 +53,19 @@ onMounted(() => {
   align-items: center;
 }
 
+.title-text {
+  font-size: 60px;
+  color: #fff;
+  font-weight: bold;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.typing-text {
+  font-size: 40px; /* Slightly smaller than title */
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
 .bottom-container {
   display: flex;
   flex-direction: column;
@@ -63,7 +76,13 @@ onMounted(() => {
   top: 10vh;
 }
 
-.el-icon {
+.scroll-text {
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 10px;
+}
+
+.scroll-icon {
+  color: #fff;
   animation: move-up-down 1s infinite;
 }
 

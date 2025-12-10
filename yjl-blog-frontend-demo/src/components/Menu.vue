@@ -1,42 +1,27 @@
 <template>
-  <el-menu :default-active="activeIndex" mode="horizontal" :ellipsis="false">
-    <el-menu-item>
-      <ElementPlus style="width: 3em; height: 3em" />
-    </el-menu-item>
+  <el-menu
+    :default-active="activeIndex"
+    mode="horizontal"
+    :ellipsis="false"
+    class="full-width-menu"
+  >
     <el-menu-item index="1"
       ><router-link to="/"><el-text>首页</el-text></router-link></el-menu-item
     >
     <el-menu-item index="2"
-      ><router-link to="/article"><el-text>技术文章</el-text></router-link></el-menu-item
+      ><router-link to="/article"><el-text>文章</el-text></router-link></el-menu-item
     >
     <el-menu-item index="3"
-      ><router-link to="/life"><el-text>生活小记</el-text></router-link></el-menu-item
+      ><router-link to="/life"><el-text>记忆</el-text></router-link></el-menu-item
     >
     <el-menu-item index="4"
       ><router-link to="/about"><el-text>关于</el-text></router-link></el-menu-item
     >
-    <el-menu-item>
-      <el-input v-model="input" style="max-width: 400px" placeholder="请输入">
-        <template #prepend>
-          <Search style="width: 1em; height: 1em" />
-        </template>
-      </el-input>
-    </el-menu-item>
-    <el-menu-item style="padding-right: 0.5em">
-      <el-switch
-        v-model="isDark"
-        @change="toggleDark"
-        inline-prompt
-        style="--el-switch-on-color: #909399; --el-switch-off-color: #409eff"
-        active-text="暗黑"
-        inactive-text="明亮"
-      />
-    </el-menu-item>
-    <el-menu-item style="padding-left: 0.5em">
+    <div class="flex-spacer"></div>
+    <el-menu-item class="user-menu-item">
       <el-dropdown v-if="authStore.isAuthenticated" @command="handleCommand">
         <div class="avatar-container">
           <el-avatar :size="40" fit="cover" :src="getDefaultCoverImageUrl('default_head2.jpg')" />
-          <!-- <div class="username-tooltip">{{ authStore.user?.username }}</div> -->
         </div>
         <template #dropdown>
           <el-dropdown-menu>
@@ -63,7 +48,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { useDark, useToggle } from '@vueuse/core'
 import { ElMessage } from 'element-plus'
 import { User, Edit, SwitchButton } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/auth'
@@ -108,12 +92,6 @@ watch(
   },
 )
 
-const input = ref('')
-
-// 切换暗黑模式
-const isDark = useDark()
-const toggleDark = useToggle(isDark)
-
 // 处理下拉菜单命令
 const handleCommand = (command: string) => {
   switch (command) {
@@ -144,71 +122,79 @@ const goToLogin = () => {
   box-sizing: border-box;
 }
 
-.el-menu {
-  backdrop-filter: blur(40px);
-}
-
-.el-input,
-.el-switch,
-.el-avatar {
-  padding: 0 10px;
+.full-width-menu {
+  width: 100%;
+  padding: 0 50px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.8) !important;
+  backdrop-filter: blur(20px);
 }
 
 .el-menu-item .el-text {
   padding: 0 20px;
   font-size: var(--menu-font-size);
-}
-
-.el-menu--horizontal > .el-menu-item:nth-child(1) {
-  margin-right: auto;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .el-menu--horizontal {
-  justify-content: space-between;
-  background-color: transparent;
+  display: flex;
+  align-items: center;
+  background-color: transparent !important;
+}
+
+.el-menu-item {
+  background-color: transparent !important;
+  border-bottom: none !important;
+}
+
+.el-menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* 激活状态的菜单项 */
+.el-menu-item.is-active {
+  color: #196dc1 !important;
+  border-bottom: 2px solid #196dc1 !important;
+}
+
+.el-menu-item.is-active .el-text {
+  color: #196dc1 !important;
+  font-weight: 600;
+}
+
+/* 确保链接在激活状态下也显示正确颜色 */
+.el-menu-item.is-active a {
+  color: #196dc1 !important;
+}
+
+.flex-spacer {
+  flex: 1;
+}
+
+.user-menu-item {
+  margin-left: auto;
 }
 
 ::v-deep a {
-  color: var(--text-color);
+  color: rgba(255, 255, 255, 0.9);
   text-decoration: none;
+}
+
+::v-deep a:hover {
+  color: #fff;
 }
 
 /* 头像容器样式 */
 .avatar-container {
   position: relative;
   display: inline-block;
+  cursor: pointer;
 }
 
 /* 控制头像框内图片尺寸 */
 .avatar-container ::v-deep(.el-avatar img) {
-  width: 50px; /* 图片宽度，略小于头像框 */
-  height: 50px; /* 图片高度，略小于头像框 */
-  object-fit: cover; /* 保持比例覆盖 */
-}
-
-/* 用户名提示框样式 */
-.username-tooltip {
-  position: absolute;
-  bottom: -30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: var(--el-bg-color-overlay);
-  color: var(--el-text-color-primary);
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  white-space: nowrap;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-  z-index: 1000;
-  border: 1px solid var(--el-border-color);
-  box-shadow: var(--el-box-shadow-light);
-}
-
-/* hover时显示用户名提示框 */
-.avatar-container:hover .username-tooltip {
-  opacity: 1;
-  visibility: visible;
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
 }
 </style>

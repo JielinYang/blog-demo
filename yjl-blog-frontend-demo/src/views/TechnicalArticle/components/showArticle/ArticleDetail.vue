@@ -2,8 +2,8 @@
   <div class="article-detail">
     <div class="back-button">
       <el-button @click="goBack" size="large" link>
-        <el-icon><ArrowLeft /></el-icon>
-        返回
+        <el-icon :size="20"><ArrowLeft /></el-icon>
+        <el-text size="large">返回</el-text>
       </el-button>
     </div>
     <el-card class="box-card">
@@ -187,16 +187,20 @@ onMounted(() => {
 
 .article-detail {
   width: 1000px;
-  margin: 50px auto 20px auto;
+  margin: 100px auto 20px auto;
   padding: 0 20px;
   position: relative;
 }
 
 .back-button {
   position: absolute;
-  left: 20px;
-  top: -50px;
+  left: -80px;
   z-index: 1;
+}
+
+.back-button .el-icon {
+  position: absolute;
+  left: -10px;
 }
 
 .box-card {

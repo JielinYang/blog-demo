@@ -50,20 +50,20 @@
         <el-footer>
           <div class="article-meta">
             <div class="meta-item">
-              <el-icon :size="16"><Clock /></el-icon>
-              <el-text size="small">{{ formatDate(article?.createTime) }} </el-text>
+              <el-icon :size="20"><Clock /></el-icon>
+              <el-text size="large">{{ formatDate(article?.createTime) }} </el-text>
             </div>
             <div class="meta-item">
-              <el-icon :size="16"><View /></el-icon>
-              <el-text size="small">{{ article?.views }} </el-text>
+              <el-icon :size="20"><View /></el-icon>
+              <el-text size="large">{{ article?.views }} </el-text>
             </div>
             <div class="meta-item">
-              <el-icon :size="16"><Comment /></el-icon>
-              <el-text size="small">{{ article?.commentCount }} </el-text>
+              <el-icon :size="20"><Comment /></el-icon>
+              <el-text size="large">{{ article?.commentCount }} </el-text>
             </div>
             <div class="meta-item">
-              <el-icon :size="16"><Star /></el-icon>
-              <el-text size="small">{{ article?.likeCount }} </el-text>
+              <el-icon :size="20"><Star /></el-icon>
+              <el-text size="large">{{ article?.likeCount }} </el-text>
             </div>
           </div>
         </el-footer>
@@ -143,47 +143,65 @@ const getStatusType = (status: number = 0) => {
 }
 
 .article-container {
-  width: 1000px;
-  border-radius: 12px;
-  margin: 20px auto;
-  transition: all 0.3s ease-in-out;
-  padding: 20px;
+  height: 220px;
+  min-height: 220px;
+  max-height: 220px;
+  width: 100%;
+  max-width: 900px;
+  border-radius: 16px;
+  margin: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0;
   cursor: pointer;
-  backdrop-filter: blur(10px);
+  overflow: hidden;
 
-  /* 使用Element Plus变量设置样式 */
-  background: var(--el-bg-color-overlay);
-  border: 1px solid var(--el-border-color-darker);
+  /* 深色玻璃态效果 */
+  background: rgba(30, 20, 20, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 32px var(--el-box-shadow-light);
-    background: var(--el-bg-color-overlay);
-    border-color: var(--el-border-color);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(30, 30, 40, 0.7);
   }
 }
 
 .article-layout {
   display: flex;
-  gap: 20px;
-  align-items: flex-start;
+  gap: 0;
+  align-items: stretch;
   max-width: 100%;
+  height: auto;
+  min-height: 180px;
 }
 
 .cover-image-container {
   flex-shrink: 0;
-  width: 200px;
-  height: 180px;
-  border-radius: 8px;
+  width: 260px;
+  height: 100%;
   overflow: hidden;
-  background: var(--el-fill-color-light);
+  position: relative;
+  padding: 20px;
 }
 
 .cover-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.4s ease;
+  border-radius: 8px;
 }
+
+/* .article-container:hover .cover-image {
+  transform: scale(1.05);
+} */
+
+/* .article-container:hover .cover-image-container:hover {
+  background: rgba(30, 30, 40, 0.7);
+} */
 
 .cover-image-placeholder {
   width: 100%;
@@ -192,74 +210,100 @@ const getStatusType = (status: number = 0) => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--el-fill-color-light);
-  color: var(--el-text-color-secondary);
+  /* background: linear-gradient(135deg, rgba(40, 40, 50, 0.5), rgba(30, 30, 40, 0.7)); */
+  color: rgba(255, 255, 255, 0.4);
   font-size: 14px;
 }
 
 .cover-image-placeholder .el-icon {
-  font-size: 24px;
+  font-size: 32px;
   margin-bottom: 8px;
+  opacity: 0.5;
 }
 
 .article-content-container {
   flex: 1;
   min-width: 0;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .article-title {
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 26px;
+  font-weight: 600;
   flex: 1;
   min-width: 0;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  hyphens: auto;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  color: rgba(255, 255, 255, 0.95);
+  line-height: 1.4;
+  margin-bottom: 4px;
+  letter-spacing: 0.3px;
 }
 
 .article-status {
   display: inline-block;
+  margin-left: 12px;
 }
 
 .article-description,
 .article-content {
-  font-size: 16px;
-  line-height: 1.6;
-  margin: 10px 0;
+  font-size: 14px;
+  line-height: 1.8;
+  margin: 12px 0;
   max-width: 100%;
+  color: rgba(255, 255, 255, 0.65);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .article-tags {
-  margin-top: 10px;
+  margin-top: 12px;
+  margin-bottom: 12px;
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.article-tags .el-tag {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  padding: 2px 10px;
 }
 
 .article-meta {
   display: flex;
   align-items: center;
   gap: 20px;
-  color: #999;
-  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
 }
 
 .meta-item {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  transition: color 0.3s ease;
+}
+
+.meta-item:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.meta-item .el-icon {
+  opacity: 0.7;
 }
 
 .el-header {
   height: auto;
   padding: 0;
-  margin-bottom: 10px;
+  margin-bottom: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
 }
 
@@ -267,11 +311,12 @@ const getStatusType = (status: number = 0) => {
   height: auto;
   padding: 0;
   overflow: hidden;
+  flex: 1;
 }
 
 .el-footer {
   height: auto;
   padding: 0;
-  margin-top: 15px;
+  margin-top: 0;
 }
 </style>

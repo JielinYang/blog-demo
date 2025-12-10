@@ -54,3 +54,17 @@ INSERT INTO categories (name, description) VALUES ('技术分享', '分享技术
 INSERT INTO categories (name, description) VALUES ('生活随笔', '记录日常生活、感悟、思考等');
 INSERT INTO categories (name, description) VALUES ('学习笔记', '学习过程中的笔记、总结、心得体会');
 INSERT INTO categories (name, description) VALUES ('项目总结', '项目开发过程中的经验总结、技术方案等');
+
+
+-- Life Memory Fragments Table
+CREATE TABLE `life_fragments` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
+  `content` text COMMENT 'Text content of the memory',
+  `image_url` varchar(255) DEFAULT NULL COMMENT 'URL of the uploaded image',
+  `mood` varchar(50) DEFAULT NULL COMMENT 'Mood (e.g., Happy, Sad, Calm, Excited)',
+  `weather` varchar(50) DEFAULT NULL COMMENT 'Weather (e.g., Sunny, Rainy, Cloudy, Snowy)',
+  `record_time` datetime NOT NULL COMMENT 'Time of the memory',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'Creation time',
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update time',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Life Memory Fragments';

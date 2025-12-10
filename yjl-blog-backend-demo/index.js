@@ -11,6 +11,7 @@ import articleRouter from "./src/routes/articleRoute.js";
 import uploadRouter from "./src/routes/uploadRoute.js";
 import authRouter from "./src/routes/authRoute.js";
 import minioRouter from "./src/routes/minioRoute.js";
+import lifeFragmentRouter from "./src/routes/lifeFragmentRoute.js";
 
 // 工具导入
 import { checkDatabase, initDatabase } from "./src/utils/databaseInit.js";
@@ -91,6 +92,7 @@ app.use("/articles", articleRouter);
 app.use("/upload", uploadRouter);
 app.use("/auth", authRouter);
 app.use("/minio", minioRouter);
+app.use("/api/life", lifeFragmentRouter);
 
 // 404处理
 app.use("*", (req, res) => {

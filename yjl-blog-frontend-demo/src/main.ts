@@ -34,4 +34,7 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }
 
+// 强制启用暗黑模式
+document.documentElement.classList.add('dark')
+
 app.mount('#app')

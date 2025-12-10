@@ -12,9 +12,9 @@ const mainContent = ref<HTMLElement | null>(null)
     <el-main ref="mainContent">
       <router-view></router-view>
     </el-main>
-    <el-footer></el-footer>
+    <!-- <el-footer></el-footer> -->
   </el-container>
-  <el-footer></el-footer>
+  <!-- <el-footer></el-footer> -->
   <ParticleEffect />
 
   <el-backtop :right="100" :bottom="100" />
@@ -41,26 +41,29 @@ html {
 
 <style scoped>
 .el-container {
-  width: var(--header-length);
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 .el-header {
   position: fixed;
   top: 0;
-  width: var(--header-length);
+  left: 0;
+  right: 0;
+  width: 100%;
   z-index: 1000;
+  padding: 0;
+  backdrop-filter: blur(2px);
+  background: rgba(0, 0, 0, 0.1) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .el-main {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  top: var(--header-height);
-  overflow: visible;
-  margin-top: 30px;
+  width: 100%;
+  min-height: 100vh;
+  padding: 0;
+  margin: 0;
 }
 
 .el-footer {
