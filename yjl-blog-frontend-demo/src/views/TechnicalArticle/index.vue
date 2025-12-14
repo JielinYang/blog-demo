@@ -36,12 +36,22 @@
 
       <!-- 文章列表 -->
       <div v-else class="article-list-contaier">
-        <ArticalBlock
-          v-for="article in articles"
-          :key="article.id"
-          :article="article"
-          @click="handleArticleClick(article)"
-        />
+        <transition-group
+          name="staggered-list"
+          tag="div"
+          class="article-list-wrapper"
+          @before-enter="beforeEnter"
+          @enter="enter"
+          appear
+        >
+          <ArticalBlock
+            v-for="(article, index) in articles"
+            :key="article.id"
+            :article="article"
+            :data-index="index"
+            @click="handleArticleClick(article)"
+          />
+        </transition-group>
       </div>
 
       <el-pagination
@@ -240,14 +250,51 @@ onMounted(() => {
     .finally(() => {
       loading.value = false
     })
+  cleanup()
 })
 
 onUnmounted(() => {
   cleanup()
 })
+
+// 列表动画钩子函数
+const beforeEnter = (el: Element) => {
+  const htmlEl = el as HTMLElement
+  htmlEl.style.opacity = '0'
+  htmlEl.style.transform = 'translateY(30px)'
+}
+
+const enter = (el: Element, done: () => void) => {
+  const htmlEl = el as HTMLElement
+  const delay = parseInt(htmlEl.dataset.index || '0') * 100 // 每个项目延迟100ms
+
+  setTimeout(() => {
+    htmlEl.style.transition =
+      'opacity 0.5s ease, transform 0.5s cubic-bezier(0.215, 0.61, 0.355, 1)'
+    htmlEl.style.opacity = '1'
+    htmlEl.style.transform = 'translateY(0)'
+
+    // 动画完成后清除内联样式，避免影响后续交互（如hover效果）
+    htmlEl.addEventListener(
+      'transitionend',
+      () => {
+        done()
+      },
+      { once: true },
+    )
+  }, delay)
+}
 </script>
 
 <style scoped>
+/* 确保 transition-group 的 wrapper 样式正确 */
+.article-list-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  width: 100%;
+}
 * {
   margin: 0;
   padding: 0;

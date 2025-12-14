@@ -28,11 +28,11 @@
         </p>
 
         <div class="social-links">
-          <a href="https://github.com/FBranch" target="_blank" class="social-btn github">
+          <a href="https://github.com/JielinYang" target="_blank" class="social-btn github">
             <i class="fab fa-github"></i> GitHub
           </a>
           <a
-            href="https://www.xiaohongshu.com/user/profile/5b8f7d3e4eacab26d0356168"
+            href="https://www.xiaohongshu.com/user/profile/6930e8310000000037003fa8"
             target="_blank"
             class="social-btn xiaohongshu"
           >

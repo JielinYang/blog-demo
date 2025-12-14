@@ -9,8 +9,14 @@ const mainContent = ref<HTMLElement | null>(null)
 <template>
   <el-container>
     <el-header><Menu></Menu></el-header>
-    <el-main ref="mainContent">
-      <router-view></router-view>
+    <el-main ref="mainContent" class="main-container">
+      <router-view v-slot="{ Component }">
+        <transition name="fade-slide" mode="out-in">
+          <div class="route-wrapper" :key="Component">
+            <component :is="Component" />
+          </div>
+        </transition>
+      </router-view>
     </el-main>
     <!-- <el-footer></el-footer> -->
   </el-container>
@@ -24,6 +30,26 @@ const mainContent = ref<HTMLElement | null>(null)
 /* body {
   background-color: red;
 } */
+
+/* 路由过渡动画 */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
 
 /* 使用CSS自定义属性计算滚动条宽度，保持页面宽度稳定 */
 :root {
@@ -64,6 +90,11 @@ html {
   min-height: 100vh;
   padding: 0;
   margin: 0;
+  position: relative;
+}
+
+.route-wrapper {
+  width: 100%;
 }
 
 .el-footer {
