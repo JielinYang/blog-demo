@@ -40,7 +40,7 @@
           </el-dropdown-menu>
         </template>
       </el-dropdown>
-      <el-button v-else @click="goToLogin" type="primary" size="small">登录</el-button>
+      <el-button v-else @click="goToLogin" class="login-btn">登录</el-button>
     </el-menu-item>
   </el-menu>
 </template>
@@ -151,6 +151,11 @@ const goToLogin = () => {
   background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
+/* 用户菜单项（包含登录按钮）悬停时不改变背景色 */
+.user-menu-item:hover {
+  background-color: transparent !important;
+}
+
 /* 激活状态的菜单项 */
 .el-menu-item.is-active {
   color: #196dc1 !important;
@@ -196,5 +201,28 @@ const goToLogin = () => {
   width: 50px;
   height: 50px;
   object-fit: cover;
+}
+
+/* 登录按钮样式 */
+.login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  backdrop-filter: blur(5px);
+  transition: all 0.3s ease;
+  box-shadow: none;
+}
+
+.login-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
 }
 </style>

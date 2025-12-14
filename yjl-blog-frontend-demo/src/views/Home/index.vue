@@ -14,6 +14,13 @@
     <div class="carousel-section">
       <ArticleCarousel />
     </div>
+
+    <!-- Footer with ICP Info -->
+    <footer class="site-footer">
+      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">
+        蜀ICP备2025174984号
+      </a>
+    </footer>
   </div>
 </template>
 
@@ -68,5 +75,30 @@ import ArticleCarousel from './components/ArticleCarousel.vue'
   height: 80vh;
   background: #000;
   position: relative;
+}
+
+.site-footer {
+  width: 100%;
+  padding: 20px 40px;
+  background: #000;
+  text-align: right;
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.site-footer a {
+  color: rgba(255, 255, 255, 0.3);
+  text-decoration: none;
+  font-size: 12px;
+  transition: color 0.3s ease;
+  font-family: 'Microsoft YaHei', sans-serif;
+  display: inline-block;
+  line-height: 1.5;
+}
+
+.site-footer a:hover {
+  color: rgba(255, 255, 255, 0.6);
 }
 </style>

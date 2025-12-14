@@ -1,5 +1,22 @@
 <template>
   <div class="login-container">
+    <!-- 星空粒子背景 -->
+    <div class="stars-container">
+      <div
+        v-for="(star, index) in stars"
+        :key="index"
+        class="star"
+        :style="{
+          left: star.x + 'px',
+          top: star.y + 'px',
+          width: star.size + 'px',
+          height: star.size + 'px',
+          opacity: star.opacity,
+          animationDuration: star.duration + 's',
+          animationDelay: star.delay + 's',
+        }"
+      ></div>
+    </div>
     <div class="background-overlay"></div>
     <el-card class="login-card animate__animated animate__fadeInDown">
       <template #header>
@@ -60,7 +77,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { useAuthStore } from '@/stores/auth'
@@ -108,6 +125,52 @@ const handleLogin = async () => {
     }
   })
 }
+
+// 星空粒子系统
+const stars = ref<
+  Array<{
+    x: number
+    y: number
+    size: number
+    opacity: number
+    duration: number
+    delay: number
+  }>
+>([])
+
+// 创建星空粒子
+const createStars = () => {
+  const starCount = 150 // 粒子数量
+  const newStars = []
+
+  for (let i = 0; i < starCount; i++) {
+    const duration = Math.random() * 30 + 20 // 20s - 50s
+    newStars.push({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      size: Math.random() * 2 + 0.5, // 0.5px - 2.5px
+      opacity: Math.random() * 0.8 + 0.2, // 0.2 - 1.0
+      duration: duration,
+      delay: -Math.random() * duration, // 负延迟使动画立即处于播放状态
+    })
+  }
+
+  stars.value = newStars
+}
+
+// 窗口大小变化时重新创建粒子
+const handleResize = () => {
+  createStars()
+}
+
+onMounted(() => {
+  createStars()
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
 </script>
 
 <style scoped>
@@ -118,8 +181,45 @@ const handleLogin = async () => {
   min-height: 100vh;
   position: relative;
   overflow: hidden;
-  background: url('@/assets/img/starry-sky.png') no-repeat center center;
-  background-size: cover;
+  background: radial-gradient(ellipse at bottom left, #1b2735 0%, #090a0f 100%);
+}
+
+/* 星空粒子容器 */
+.stars-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 单个星星 */
+.star {
+  position: absolute;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+  animation: starFloat linear infinite;
+}
+
+/* 星星浮动动画 */
+@keyframes starFloat {
+  0% {
+    transform: translateY(100vh) scale(0.5);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) scale(1.2);
+    opacity: 0;
+  }
 }
 
 .background-overlay {
@@ -210,15 +310,17 @@ const handleLogin = async () => {
   height: 45px;
   font-size: 16px;
   font-weight: 600;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: none;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  backdrop-filter: blur(5px);
+  transition: all 0.3s ease;
 }
 
 .login-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
-  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
 }
 
 .login-button:active {

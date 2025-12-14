@@ -13,7 +13,7 @@
     <div class="article-info">
       <transition name="fade" mode="out-in">
         <div :key="currentArticle?.id" class="info-content" v-if="currentArticle">
-          <h2 class="article-title">{{ currentArticle.title }}</h2>
+          <h2 class="article-title" @click="goToDetail(currentArticle.id)">{{ currentArticle.title }}</h2>
           <p class="article-date">{{ formatDate(currentArticle.createTime) }}</p>
         </div>
       </transition>
@@ -34,6 +34,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useArticleStore } from '@/stores/article'
 import * as THREE from 'three'
@@ -41,6 +42,7 @@ import starryNightImg from '@/assets/img/starry-night-original.jpg'
 
 const articleStore = useArticleStore()
 const { articleList } = storeToRefs(articleStore)
+const router = useRouter()
 const defaultImg = starryNightImg
 
 const containerRef = ref<HTMLElement | null>(null)
@@ -63,8 +65,11 @@ const CARD_WIDTH = 400
 const CARD_HEIGHT = 400
 
 // Interaction State
+// Interaction State
 let isDragging = false
 let startX = 0
+let startY = 0
+let startTime = 0
 let currentRotation = 0
 let targetRotation = 0
 let dragVelocity = 0
@@ -124,6 +129,9 @@ const initThree = () => {
       card.position.x = Math.sin(angle) * RADIUS
       card.position.z = Math.cos(angle) * RADIUS
       card.rotation.y = angle
+      
+      // Store article ID for click handling
+      card.userData = { articleId: article.id }
 
       carouselGroup.add(card)
       cards.push({ mesh: card, angle })
@@ -389,6 +397,8 @@ const goToIndex = (index: number) => {
 const onMouseDown = (e: MouseEvent) => {
   isDragging = true
   startX = e.clientX
+  startY = e.clientY
+  startTime = Date.now()
   lastX = e.clientX
   dragVelocity = 0
 }
@@ -396,6 +406,8 @@ const onMouseDown = (e: MouseEvent) => {
 const onTouchStart = (e: TouchEvent) => {
   isDragging = true
   startX = e.touches[0].clientX
+  startY = e.touches[0].clientY
+  startTime = Date.now()
   lastX = e.touches[0].clientX
   dragVelocity = 0
 }
@@ -420,14 +432,52 @@ const onTouchMove = (e: TouchEvent) => {
   lastX = e.touches[0].clientX
 }
 
-const onMouseUp = () => {
+const onMouseUp = (e: MouseEvent) => {
   isDragging = false
+  
+  // Check for click (short duration and small movement)
+  const duration = Date.now() - startTime
+  const dist = Math.sqrt(Math.pow(e.clientX - startX, 2) + Math.pow(e.clientY - startY, 2))
+  
+  if (duration < 300 && dist < 10) {
+    // It's a click! Perform raycast
+    if (containerRef.value) {
+      const rect = containerRef.value.getBoundingClientRect()
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1
+      
+      raycaster.setFromCamera(mouse, camera)
+      const intersects = raycaster.intersectObjects(carouselGroup.children)
+      
+      if (intersects.length > 0) {
+        const object = intersects[0].object
+        if (object.userData && object.userData.articleId) {
+          goToDetail(object.userData.articleId)
+        }
+      }
+    }
+  }
+
   mouse.set(-1000, -1000)
 }
 
-const onTouchEnd = () => {
+const onTouchEnd = (e: TouchEvent) => {
   isDragging = false
+  
+  // For touch, we can't easily get the "mouseup" position from touchend event directly 
+  // without tracking touchmove, but for simple tap detection:
+  // If dragVelocity is very small, we can assume it's a tap.
+  // However, accurate tap detection on 3D objects with touch is trickier.
+  // For now, let's rely on the fact that if it wasn't a drag, it might be a tap.
+  // But we need coordinates for raycasting.
+  // A better way for touch is to use the last known touch position if movement was small.
+  
+  // Simplified: just reset for now. Implementing robust touch raycasting requires tracking last touch pos.
   mouse.set(-1000, -1000)
+}
+
+const goToDetail = (id: number) => {
+  router.push(`/article/${id}`)
 }
 
 const formatDate = (dateStr?: string) => {
@@ -456,7 +506,6 @@ const formatDate = (dateStr?: string) => {
   transform: translateX(-50%);
   text-align: center;
   color: #fff;
-  pointer-events: none;
   z-index: 10;
 }
 
@@ -468,7 +517,15 @@ const formatDate = (dateStr?: string) => {
   display: flex;
   align-items: center;
   justify-content: center;
+  justify-content: center;
   line-height: 1.2;
+  cursor: pointer;
+  transition: transform 0.3s ease, text-shadow 0.3s ease;
+}
+
+.article-title:hover {
+  transform: scale(1.05);
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
 }
 
 .article-date {

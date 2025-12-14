@@ -337,13 +337,18 @@ onUnmounted(() => {
   font-size: 16px;
   font-weight: 500;
   border-radius: 50px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  backdrop-filter: blur(5px);
   transition: all 0.3s ease;
+  box-shadow: none;
 }
 
 .write-article-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.4);
+  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
 }
 
 .loading-container {
@@ -380,7 +385,6 @@ onUnmounted(() => {
   flex-wrap: nowrap;
   margin: 0;
   padding: 12px 16px;
-  background: rgba(20, 20, 30, 0.4);
   border-radius: 12px;
   backdrop-filter: blur(10px);
   width: fit-content;
