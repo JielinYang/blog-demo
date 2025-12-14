@@ -9,6 +9,7 @@ import {
 import { authenticateToken, requireAdmin } from "../utils/auth.js";
 import { generalLimiter } from "../utils/rateLimiter.js";
 import ResponseWrapper from "../models/ResponseWrapper.js";
+import { uploadMarkdownSingle, uploadMarkdownFile } from "../controllers/markdownUploadController.js";
 
 const router = express.Router();
 
@@ -49,6 +50,11 @@ router.get("/:id", generalLimiter, async (req, res) => {
     console.error("获取文章详情失败:", err);
     res.status(500).json(ResponseWrapper.error("获取文章详情失败"));
   }
+});
+
+// 上传Markdown文件（需要管理员权限）
+router.post("/upload-markdown", authenticateToken, requireAdmin, uploadMarkdownSingle, async (req, res) => {
+  await uploadMarkdownFile(req, res);
 });
 
 // 插入/更新文章（需要管理员权限）

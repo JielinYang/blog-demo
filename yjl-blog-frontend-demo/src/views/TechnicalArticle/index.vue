@@ -158,48 +158,6 @@ const handleCurrentChange = (newPage: number) => {
     })
 }
 
-const handleSizeChange = (newSize: number) => {
-  pagination.value.pageSize = newSize
-  pagination.value.currentPage = 1 // 重置到第一页
-  loading.value = true
-  getArticles(pagination.value.currentPage, pagination.value.pageSize)
-    .then((res) => {
-      if (res.data && res.data.articles && res.data.articles.data) {
-        articles.value = res.data.articles.data.map((item: Article) => ({
-          id: item.id || 0,
-          title: item.title || '无标题',
-          content: item.content || '',
-          authorId: item.authorId || 0,
-          authorName: item.authorName || '匿名作者',
-          categoryId: item.categoryId || undefined,
-          categoryName: item.categoryName || '未分类',
-          tags: item.tags || [],
-          description: item.description || '',
-          coverUrl: item.coverUrl || '',
-          views: item.views || 0,
-          likeCount: item.likeCount || 0,
-          commentCount: item.commentCount || 0,
-          status: item.status || 1,
-          isTop: item.isTop || false,
-          createTime: item.createTime || new Date().toISOString(),
-          updateTime: item.updateTime || new Date().toISOString(),
-        }))
-        pagination.value.total = res.data.articles.total
-      } else {
-        articles.value = []
-        pagination.value.total = 0
-      }
-    })
-    .catch((error) => {
-      articles.value = []
-      pagination.value.total = 0
-      console.error('获取文章列表失败:', error)
-    })
-    .finally(() => {
-      loading.value = false
-    })
-}
-
 const handleArticleClick = (article: Article) => {
   // 保存当前页面状态到localStorage
   const state = {

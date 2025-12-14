@@ -22,8 +22,13 @@ export class Articles {
     id,
     title,
     content,
+    contentPath,
+    content_path = null, // 数据库字段名
+    authorId,
+    author_id = null, // 数据库字段名
     categoryId,
     category_id = null, // 兼容数据库字段名
+    tags = null, // 标签数组
     views = 0,
     like_count = 0, // 数据库字段名
     likeCount = 0, // JavaScript属性名
@@ -42,7 +47,10 @@ export class Articles {
     this.id = id;
     this.title = title;
     this.content = content;
+    this.contentPath = content_path || contentPath; // Markdown文件路径
+    this.authorId = author_id || authorId; // 作者ID
     this.categoryId = category_id || categoryId; // 优先使用数据库字段名
+    this.tags = tags; // 标签数组
     this.views = views;
     this.likeCount = like_count || likeCount; // 优先使用数据库字段名
     this.commentCount = comment_count || commentCount; // 优先使用数据库字段名
@@ -65,15 +73,19 @@ export class Articles {
         // 更新逻辑
         console.log("执行文章更新操作，将显式更新update_time字段");
         const updateQuery = `UPDATE articles SET 
-              title = ?, content = ?, category_id = ?,
+              title = ?, content = ?, content_path = ?, author_id = ?,
+              category_id = ?, tags = ?,
               views = ?, like_count = ?, comment_count = ?,
               status = ?, cover_url = ?, description = ?,
               update_time = CURRENT_TIMESTAMP
              WHERE id = ?`;
         const updateParams = [
           this.title,
-          this.content,
+          this.content || null,
+          this.contentPath || null,
+          this.authorId || null,
           this.categoryId,
+          this.tags ? JSON.stringify(this.tags) : null,
           this.views,
           this.likeCount,
           this.commentCount,
@@ -95,13 +107,16 @@ export class Articles {
         // 新建逻辑
         const [results] = await pool.query(
           `INSERT INTO articles (
-              title, content, category_id,
+              title, content, content_path, author_id, category_id, tags,
               views, like_count, comment_count, status, cover_url, description
-             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             this.title,
-            this.content,
+            this.content || null,
+            this.contentPath || null,
+            this.authorId || null,
             this.categoryId,
+            this.tags ? JSON.stringify(this.tags) : null,
             this.views,
             this.likeCount,
             this.commentCount,
@@ -221,7 +236,7 @@ export class Articles {
     try {
       // 先查询文章详情
       const [rows] = await pool.query(
-        `SELECT id, title, content, category_id, views, like_count, comment_count, status, cover_url, description, is_top, create_time, update_time
+        `SELECT id, title, content, content_path, author_id, category_id, tags, views, like_count, comment_count, status, cover_url, description, is_top, create_time, update_time
          FROM articles
          WHERE id = ?`,
         [id]

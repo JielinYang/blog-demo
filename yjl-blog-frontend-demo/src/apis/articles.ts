@@ -62,3 +62,14 @@ export const uploadCoverImage = (file: File) => {
     }
   })
 }
+
+// 上传 Markdown 文件
+export const uploadMarkdownFile = (file: File) => {
+  const formData = new FormData()
+  formData.append('file', file)
+  return request.post('/articles/upload-markdown', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}

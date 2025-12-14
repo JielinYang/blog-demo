@@ -23,10 +23,19 @@
     >
       <div class="tooltip-content">
         <div class="tooltip-header">
-          <span class="time">{{ hoveredMemory.time }}</span>
+          <span class="time">{{ formatDate(hoveredMemory.time) }}</span>
           <span class="weather">{{ hoveredMemory.weather }}</span>
         </div>
-        <div class="mood-tag">{{ hoveredMemory.mood }}</div>
+        <div
+          class="mood-tag"
+          :style="{
+            backgroundColor: getMoodColor(hoveredMemory.mood),
+            color: '#000',
+            fontWeight: 'bold',
+          }"
+        >
+          {{ hoveredMemory.mood }}
+        </div>
         <div class="text-preview">{{ hoveredMemory.content }}</div>
         <img v-if="hoveredMemory.image" :src="hoveredMemory.image" class="tooltip-img" />
       </div>
@@ -43,8 +52,8 @@
         <el-form-item label="时间">
           <el-date-picker
             v-model="newMemory.time"
-            type="datetime"
-            placeholder="选择时间"
+            type="date"
+            placeholder="选择日期"
             style="width: 100%"
           />
         </el-form-item>
@@ -76,7 +85,16 @@
         </el-form-item>
         <!-- Image upload placeholder -->
         <el-form-item label="图片">
-          <el-input v-model="newMemory.image" placeholder="图片URL（可选）" />
+          <el-upload
+            class="life-upload"
+            action=""
+            :show-file-list="false"
+            :before-upload="beforeUpload"
+            :http-request="handleUpload"
+          >
+            <img v-if="newMemory.image" :src="newMemory.image" class="uploaded-image" />
+            <el-icon v-else class="upload-icon"><Plus /></el-icon>
+          </el-upload>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -90,14 +108,24 @@
     <!-- Memory Detail Modal (Click) -->
     <el-dialog
       v-model="showDetailModal"
-      :title="currentMemory?.time"
+      :title="formatDate(currentMemory?.time)"
       width="400px"
       custom-class="glass-modal"
     >
       <div v-if="currentMemory" class="memory-detail">
         <div class="tags">
           <el-tag size="small" effect="dark">{{ currentMemory.weather }}</el-tag>
-          <el-tag size="small" effect="dark" type="success">{{ currentMemory.mood }}</el-tag>
+          <el-tag
+            size="small"
+            effect="dark"
+            :style="{
+              backgroundColor: getMoodColor(currentMemory.mood),
+              borderColor: getMoodColor(currentMemory.mood),
+              color: '#000',
+              fontWeight: 'bold',
+            }"
+            >{{ currentMemory.mood }}</el-tag
+          >
         </div>
         <div class="content">{{ currentMemory.content }}</div>
         <img v-if="currentMemory.image" :src="currentMemory.image" class="memory-img" />
@@ -113,6 +141,7 @@ import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { getLifeFragments, createLifeFragment, type LifeFragment } from '@/apis/lifeApi'
 import { useAuthStore } from '@/stores/auth'
+import { uploadImage } from '@/utils/upload-config'
 
 const authStore = useAuthStore()
 
@@ -146,6 +175,35 @@ const newMemory = reactive({
   content: '',
   image: '',
 })
+
+// 心情颜色映射
+const MOOD_COLORS: Record<string, number> = {
+  Happy: 0xffd700, // 金色
+  Calm: 0x87ceeb, // 天蓝色
+  Sad: 0x708090, // 蓝灰色
+  Excited: 0xff4500, // 橙红色
+  Anxious: 0x9370db, // 紫色
+  Lost: 0x696969, // 暗灰色
+  Default: 0xffffff, // 白色
+}
+
+// 获取心情对应的 CSS 颜色字符串
+const getMoodColor = (mood: string) => {
+  const color = MOOD_COLORS[mood] || MOOD_COLORS.Default
+  return '#' + color.toString(16).padStart(6, '0')
+}
+
+// 格式化日期（只显示年月日）
+const formatDate = (dateString?: string) => {
+  if (!dateString) return ''
+  try {
+    const date = new Date(dateString)
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  } catch (error) {
+    console.error('Error formatting date:', error)
+    return dateString
+  }
+}
 
 // 从后端获取的数据
 const memories = ref<Memory[]>([])
@@ -205,6 +263,33 @@ const loadFragments = async () => {
   }
 }
 
+// 图片上传处理
+const beforeUpload = (file: File) => {
+  const isImage = file.type.startsWith('image/')
+  const isLt2M = file.size / 1024 / 1024 < 2
+
+  if (!isImage) {
+    ElMessage.error('只能上传图片文件!')
+    return false
+  }
+  if (!isLt2M) {
+    ElMessage.error('图片大小不能超过 2MB!')
+    return false
+  }
+  return true
+}
+
+const handleUpload = async (options: any) => {
+  try {
+    const imageUrl = await uploadImage(options.file)
+    newMemory.image = imageUrl
+    ElMessage.success('图片上传成功')
+  } catch (error) {
+    console.error('Upload error:', error)
+    ElMessage.error('图片上传失败')
+  }
+}
+
 // --- Methods ---
 
 const initThree = () => {
@@ -244,8 +329,8 @@ const createParticles = () => {
 
   const MIN_PARTICLES = 40 // 最小粒子数量
 
-  // 创建彩色发光纹理（用于真实记忆）
-  const createColorfulTexture = () => {
+  // 创建基础发光纹理（白色）
+  const createBaseTexture = () => {
     const canvas = document.createElement('canvas')
     canvas.width = 32
     canvas.height = 32
@@ -253,8 +338,8 @@ const createParticles = () => {
     if (context) {
       const gradient = context.createRadialGradient(16, 16, 0, 16, 16, 16)
       gradient.addColorStop(0, 'rgba(255, 255, 255, 1)')
-      gradient.addColorStop(0.2, 'rgba(255, 200, 200, 0.8)')
-      gradient.addColorStop(0.5, 'rgba(100, 100, 255, 0.2)')
+      gradient.addColorStop(0.2, 'rgba(255, 255, 255, 0.8)')
+      gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.2)')
       gradient.addColorStop(1, 'rgba(0, 0, 0, 0)')
       context.fillStyle = gradient
       context.fillRect(0, 0, 32, 32)
@@ -280,16 +365,8 @@ const createParticles = () => {
     return new THREE.CanvasTexture(canvas)
   }
 
-  const colorfulTexture = createColorfulTexture()
+  const baseTexture = createBaseTexture()
   const whiteTexture = createWhiteTexture()
-
-  const colorfulMaterial = new THREE.SpriteMaterial({
-    map: colorfulTexture,
-    color: 0xffffff,
-    transparent: true,
-    opacity: 0.8,
-    blending: THREE.AdditiveBlending,
-  })
 
   const whiteMaterial = new THREE.SpriteMaterial({
     map: whiteTexture,
@@ -301,7 +378,16 @@ const createParticles = () => {
 
   // 添加真实的记忆粒子
   memories.value.forEach((memory) => {
-    const sprite = new THREE.Sprite(colorfulMaterial)
+    const color = MOOD_COLORS[memory.mood] || MOOD_COLORS.Default
+    const material = new THREE.SpriteMaterial({
+      map: baseTexture,
+      color: color,
+      transparent: true,
+      opacity: 0.8,
+      blending: THREE.AdditiveBlending,
+    })
+
+    const sprite = new THREE.Sprite(material)
     // Random position if not set
     const x = memory.position?.x ?? (Math.random() - 0.5) * 80
     const y = memory.position?.y ?? (Math.random() - 0.5) * 80
@@ -447,8 +533,8 @@ const addMemory = async () => {
       mood: newMemory.mood || 'Neutral',
       weather: newMemory.weather || 'Unknown',
       recordTime: newMemory.time // 使用 recordTime
-        ? new Date(newMemory.time).toISOString().slice(0, 19).replace('T', ' ')
-        : new Date().toISOString().slice(0, 19).replace('T', ' '),
+        ? new Date(newMemory.time).toISOString().slice(0, 10) + ' 00:00:00'
+        : new Date().toISOString().slice(0, 10) + ' 00:00:00',
     }
 
     console.log('Sending data:', fragmentData) // Debug log
@@ -478,6 +564,7 @@ const addMemory = async () => {
       memories.value.push(newMemoryObj)
 
       // 动态添加粒子到场景
+
       const canvas = document.createElement('canvas')
       canvas.width = 32
       canvas.height = 32
@@ -485,16 +572,17 @@ const addMemory = async () => {
       if (context) {
         const gradient = context.createRadialGradient(16, 16, 0, 16, 16, 16)
         gradient.addColorStop(0, 'rgba(255, 255, 255, 1)')
-        gradient.addColorStop(0.2, 'rgba(255, 200, 200, 0.8)')
-        gradient.addColorStop(0.5, 'rgba(100, 100, 255, 0.2)')
+        gradient.addColorStop(0.2, 'rgba(255, 255, 255, 0.8)')
+        gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.2)')
         gradient.addColorStop(1, 'rgba(0, 0, 0, 0)')
         context.fillStyle = gradient
         context.fillRect(0, 0, 32, 32)
       }
       const texture = new THREE.CanvasTexture(canvas)
+      const color = MOOD_COLORS[newMemoryObj.mood] || MOOD_COLORS.Default
       const material = new THREE.SpriteMaterial({
         map: texture,
-        color: 0xffffff,
+        color: color,
         transparent: true,
         opacity: 0.8,
         blending: THREE.AdditiveBlending,
@@ -666,11 +754,11 @@ onBeforeUnmount(() => {
 
 .tooltip-content .mood-tag {
   display: inline-block;
-  background: rgba(255, 255, 255, 0.2);
-  padding: 2px 6px;
+  padding: 2px 8px;
   border-radius: 4px;
   font-size: 0.8rem;
   margin-bottom: 5px;
+  text-shadow: none; /* 确保文字清晰 */
 }
 
 .tooltip-content .text-preview {
@@ -727,5 +815,37 @@ onBeforeUnmount(() => {
   max-width: 100%;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.life-upload {
+  width: 100px;
+  height: 100px;
+  border: 1px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: var(--el-transition-duration-fast);
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.life-upload:hover {
+  border-color: var(--el-color-primary);
+}
+
+.upload-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 100px;
+  height: 100px;
+  text-align: center;
+  line-height: 100px;
+}
+
+.uploaded-image {
+  width: 100px;
+  height: 100px;
+  display: block;
+  object-fit: cover;
 }
 </style>

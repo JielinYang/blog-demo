@@ -30,7 +30,7 @@
         </el-header>
         <el-main>
           <el-text class="article-description" v-if="article?.description" line-clamp="3">
-            {{ article?.description }}
+            {{ getPlainText(article?.description) }}
           </el-text>
           <el-text class="article-content" v-else line-clamp="3">
             {{ getPlainText(article?.content) }}
@@ -76,6 +76,7 @@
 import { Article } from '@/models/Article'
 import { View, Comment, Clock, Star, Picture } from '@element-plus/icons-vue'
 import { getDefaultCoverImageByArticleId } from '@/config/minio'
+import { extractPlainText } from '@/utils/markdownUtils'
 
 const props = defineProps<{
   article?: Article
@@ -96,8 +97,8 @@ const getCoverImageUrl = (coverImage: string = '') => {
   return getDefaultCoverImageByArticleId(articleId)
 }
 
-const getPlainText = (html: string = '') => {
-  return html.replace(/<[^>]*>/g, '')
+const getPlainText = (markdown: string = '') => {
+  return extractPlainText(markdown, 200)
 }
 
 const formatDate = (dateString: string = '') => {
@@ -156,7 +157,7 @@ const getStatusType = (status: number = 0) => {
   overflow: hidden;
 
   /* 深色玻璃态效果 */
-  background: rgba(30, 20, 20, 0.6);
+  background: rgba(30, 41, 59, 0.8);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
