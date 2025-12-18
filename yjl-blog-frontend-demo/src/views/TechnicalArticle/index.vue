@@ -278,6 +278,10 @@ const enter = (el: Element, done: () => void) => {
     htmlEl.addEventListener(
       'transitionend',
       () => {
+        // 清除所有动画相关的内联样式
+        htmlEl.style.opacity = ''
+        htmlEl.style.transform = ''
+        htmlEl.style.transition = ''
         done()
       },
       { once: true },

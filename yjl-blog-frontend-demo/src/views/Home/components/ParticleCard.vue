@@ -1,5 +1,10 @@
 <template>
-  <div ref="containerRef" class="particle-card-container" @mousemove="onMouseMove" @mouseleave="onMouseLeave"></div>
+  <div
+    ref="containerRef"
+    class="particle-card-container"
+    @mousemove="onMouseMove"
+    @mouseleave="onMouseLeave"
+  ></div>
 </template>
 
 <script setup lang="ts">
@@ -47,13 +52,14 @@ const initThree = () => {
   const loader = new THREE.TextureLoader()
   loader.crossOrigin = 'Anonymous'
   loader.load(props.imageUrl, (texture) => {
-    createParticles(texture, w, h)
+    createParticles(texture)
   })
 }
 
-const createParticles = (texture: THREE.Texture, w: number, h: number) => {
+const createParticles = (texture: THREE.Texture) => {
   // Image aspect ratio
-  const imgAspect = texture.image.width / texture.image.height
+  const imgAspect =
+    (texture.image as HTMLImageElement).width / (texture.image as HTMLImageElement).height
   const planeHeight = 150
   const planeWidth = planeHeight * imgAspect
 
@@ -99,7 +105,7 @@ const createParticles = (texture: THREE.Texture, w: number, h: number) => {
       uTexture: { value: texture },
       uMouse: { value: new THREE.Vector2(-1000, -1000) },
       uTime: { value: 0 },
-      uHover: { value: 0 }
+      uHover: { value: 0 },
     },
     vertexShader: `
       uniform float uTime;
@@ -107,7 +113,7 @@ const createParticles = (texture: THREE.Texture, w: number, h: number) => {
       uniform float uHover;
       attribute float aIndex;
       varying vec2 vUv;
-      
+
       // Simple pseudo-random noise
       float random(vec2 st) {
         return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
@@ -116,7 +122,7 @@ const createParticles = (texture: THREE.Texture, w: number, h: number) => {
       void main() {
         vUv = uv;
         vec3 pos = position;
-        
+
         // Add static noise for "broken" look
         float noise = random(pos.xy);
         pos.z += noise * 10.0;
@@ -124,16 +130,16 @@ const createParticles = (texture: THREE.Texture, w: number, h: number) => {
         // Mouse interaction (simple repulsion)
         float dist = distance(uMouse, pos.xy);
         float radius = 50.0;
-        
+
         if (dist < radius) {
           float force = (radius - dist) / radius;
           pos.z += force * 50.0 * uHover; // Pop out more
-          
+
           // Slight xy displacement
           vec2 dir = normalize(pos.xy - uMouse);
           pos.xy += dir * force * 10.0 * uHover;
         }
-        
+
         // Gentle wave
         pos.z += sin(pos.x * 0.05 + uTime) * 5.0;
         pos.y += cos(pos.y * 0.05 + uTime) * 2.0;
@@ -147,7 +153,7 @@ const createParticles = (texture: THREE.Texture, w: number, h: number) => {
     fragmentShader: `
       uniform sampler2D uTexture;
       varying vec2 vUv;
-      
+
       void main() {
         vec4 color = texture2D(uTexture, vUv);
         if (color.a < 0.1) discard;
@@ -155,44 +161,44 @@ const createParticles = (texture: THREE.Texture, w: number, h: number) => {
       }
     `,
     transparent: true,
-    depthTest: false
+    depthTest: false,
   })
 
   particles = new THREE.Points(geometry, material)
   scene.add(particles)
-  
+
   animate()
 }
 
 const animate = () => {
   animationId = requestAnimationFrame(animate)
-  
+
   if (material) {
     material.uniforms.uTime.value += 0.02
-    
+
     // Smooth mouse
     mouse.lerp(targetMouse, 0.1)
     material.uniforms.uMouse.value.copy(mouse)
   }
-  
+
   renderer.render(scene, camera)
 }
 
 const onMouseMove = (e: MouseEvent) => {
   if (!containerRef.value) return
-  
+
   const rect = containerRef.value.getBoundingClientRect()
   const x = e.clientX - rect.left
   const y = e.clientY - rect.top
-  
+
   // Map to plane coordinates (approximate based on camera z=300 and FOV 50)
   // Visible height at z=0: 2 * 300 * tan(25deg) ~= 279
   const visibleHeight = 2 * 300 * Math.tan((50 * Math.PI) / 360)
   const visibleWidth = visibleHeight * (rect.width / rect.height)
-  
+
   const px = (x / rect.width - 0.5) * visibleWidth
   const py = -(y / rect.height - 0.5) * visibleHeight // Invert Y
-  
+
   targetMouse.set(px, py)
   if (material) material.uniforms.uHover.value = 1
 }
@@ -212,11 +218,14 @@ onUnmounted(() => {
   if (scene) scene.clear()
 })
 
-watch(() => props.imageUrl, () => {
-  // Reload texture if prop changes
-  if (scene) scene.clear()
-  initThree()
-})
+watch(
+  () => props.imageUrl,
+  () => {
+    // Reload texture if prop changes
+    if (scene) scene.clear()
+    initThree()
+  },
+)
 </script>
 
 <style scoped>

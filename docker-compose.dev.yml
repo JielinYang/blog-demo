@@ -1,0 +1,108 @@
+version: '3.8'
+
+# 本地开发环境 Docker Compose 配置
+# 使用本地构建而非 Docker Hub 镜像
+
+services:
+  # MySQL 数据库
+  mysql:
+    image: mysql:8.0
+    container_name: blog-mysql-dev
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-dev_root_password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-blog_db}
+      MYSQL_USER: ${MYSQL_USER:-blog_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-dev_password}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data_dev:/var/lib/mysql
+    networks:
+      - blog-network-dev
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 后端服务(本地构建)
+  backend:
+    build:
+      context: ./yjl-blog-backend-demo
+      dockerfile: Dockerfile
+    container_name: blog-backend-dev
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${MYSQL_DATABASE:-blog_db}
+      DB_USER: ${MYSQL_USER:-blog_user}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-dev_password}
+      JWT_SECRET: ${JWT_SECRET:-dev_jwt_secret_key}
+      PORT: 3000
+      # MinIO 配置
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
+      MINIO_BUCKET: ${MINIO_BUCKET:-blog-images}
+      MINIO_USE_SSL: false
+    depends_on:
+      mysql:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - blog-network-dev
+    volumes:
+      - ./yjl-blog-backend-demo:/app
+      - /app/node_modules
+      - ./yjl-blog-backend-demo/uploads:/app/uploads
+
+  # MinIO 对象存储服务
+  minio:
+    image: minio/minio:latest
+    container_name: blog-minio-dev
+    restart: always
+    ports:
+      - "9000:9000"  # API 端口
+      - "9001:9001"  # 控制台端口
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data_dev:/data
+    networks:
+      - blog-network-dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # 前端服务(本地构建)
+  frontend:
+    build:
+      context: ./yjl-blog-frontend-demo
+      dockerfile: Dockerfile
+    container_name: blog-frontend-dev
+    restart: always
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - blog-network-dev
+
+networks:
+  blog-network-dev:
+    driver: bridge
+
+volumes:
+  mysql_data_dev:
+  minio_data_dev:

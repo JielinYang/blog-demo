@@ -10,9 +10,9 @@ const mainContent = ref<HTMLElement | null>(null)
   <el-container>
     <el-header><Menu></Menu></el-header>
     <el-main ref="mainContent" class="main-container">
-      <router-view v-slot="{ Component }">
+      <router-view v-slot="{ Component, route }">
         <transition name="fade-slide" mode="out-in">
-          <div class="route-wrapper" :key="Component">
+          <div class="route-wrapper" :key="route.path">
             <component :is="Component" />
           </div>
         </transition>
