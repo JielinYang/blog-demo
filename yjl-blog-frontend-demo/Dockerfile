@@ -13,6 +13,10 @@ RUN npm ci
 # 复制应用代码
 COPY . .
 
+# 设置构建时环境变量
+ARG VITE_API_BASE_URL=/api
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+
 # 构建生产版本
 RUN npm run build
 

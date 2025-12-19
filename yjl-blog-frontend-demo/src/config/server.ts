@@ -19,7 +19,7 @@ const getEnvironment = (): 'development' | 'production' => {
 // 服务器配置对象
 // 根据环境变量或构建时配置来设置不同的值
 export const serverConfig: ServerConfig = {
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: Number(import.meta.env.VITE_API_TIMEOUT) || 5000,
   headers: { 'Content-Type': 'application/json;charset=UTF-8' },
   environment: getEnvironment(),

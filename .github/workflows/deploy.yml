@@ -37,6 +37,8 @@ jobs:
           context: ./yjl-blog-backend-demo
           file: ./yjl-blog-backend-demo/Dockerfile
           push: true
+          build-args: |
+            NODE_ENV=production
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/blog-backend:latest
             ${{ secrets.DOCKER_USERNAME }}/blog-backend:${{ github.sha }}
@@ -65,6 +67,8 @@ jobs:
           context: ./yjl-blog-frontend-demo
           file: ./yjl-blog-frontend-demo/Dockerfile
           push: true
+          build-args: |
+            VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/blog-frontend:latest
             ${{ secrets.DOCKER_USERNAME }}/blog-frontend:${{ github.sha }}
@@ -83,7 +87,33 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd /opt/blog
+            cd /opt/blog/blog-demo
+            
+            # 创建 .env 文件
+            cat > .env << 'EOF'
+            # Docker Hub 配置
+            DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+            
+            # 数据库配置
+            MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
+            MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}
+            MYSQL_USER=${{ secrets.MYSQL_USER }}
+            MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+            
+            # JWT 密钥
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            
+            # MinIO 配置
+            MINIO_ACCESS_KEY=${{ secrets.MINIO_ACCESS_KEY }}
+            MINIO_SECRET_KEY=${{ secrets.MINIO_SECRET_KEY }}
+            MINIO_BUCKET=${{ secrets.MINIO_BUCKET }}
+            EOF
+            
+            # 拉取最新镜像
             docker-compose pull
+            
+            # 重启服务
             docker-compose up -d
+            
+            # 清理旧镜像
             docker image prune -f
