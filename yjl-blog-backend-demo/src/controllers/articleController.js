@@ -3,33 +3,26 @@ import { Articles } from "../models/Articles.js";
 import ResponseWrapper from "../models/ResponseWrapper.js";
 import { sanitizeArticle } from "../utils/security.js";
 import { generalLimiter } from "../utils/rateLimiter.js";
-import { readMarkdownFile, extractDescription } from "../utils/markdownUtils.js";
-
-export async function insertFakeArticles(articlesNum) {
-  const articles = generateFakeArticles(articlesNum);
-  for (const article of articles) {
-    // 清理假数据，防止XSS攻击
-    const sanitizedArticle = sanitizeArticle(article);
-    const newArticle = new Articles(sanitizedArticle);
-    await newArticle.save();
-  }
-}
+import {
+  readMarkdownFile,
+  extractDescription,
+} from "../utils/markdownUtils.js";
 
 export async function saveArticle(article) {
   // 清理文章内容，防止XSS攻击
   const sanitizedArticle = sanitizeArticle(article);
-  
+
   // 如果提供了contentPath但没有description，自动提取摘要
   if (sanitizedArticle.contentPath && !sanitizedArticle.description) {
     try {
       const content = await readMarkdownFile(sanitizedArticle.contentPath);
       sanitizedArticle.description = extractDescription(content, 200);
     } catch (error) {
-      console.error('读取Markdown文件失败:', error);
+      console.error("读取Markdown文件失败:", error);
       // 如果读取失败，继续保存，但不设置摘要
     }
   }
-  
+
   const newArticle = new Articles(sanitizedArticle);
   const result = await newArticle.save();
   return result;
@@ -92,28 +85,28 @@ export async function getArticles(req, res) {
 
 export async function getArticleById(id) {
   const article = await Articles.getById(id);
-  
+
   // 如果文章有contentPath，读取Markdown文件内容
   if (article && article.contentPath) {
     try {
       const content = await readMarkdownFile(article.contentPath);
       article.content = content;
     } catch (error) {
-      console.error('读取Markdown文件失败:', error);
-      article.content = ''; // 如果读取失败，返回空内容
+      console.error("读取Markdown文件失败:", error);
+      article.content = ""; // 如果读取失败，返回空内容
     }
   }
-  
+
   // 如果有tags字段且是字符串，解析为JSON
-  if (article && article.tags && typeof article.tags === 'string') {
+  if (article && article.tags && typeof article.tags === "string") {
     try {
       article.tags = JSON.parse(article.tags);
     } catch (error) {
-      console.error('解析tags失败:', error);
+      console.error("解析tags失败:", error);
       article.tags = [];
     }
   }
-  
+
   return article;
 }
 
