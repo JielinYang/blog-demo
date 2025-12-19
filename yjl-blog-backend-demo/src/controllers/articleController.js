@@ -1,4 +1,3 @@
-import { generateFakeArticles } from "../utils/generateFakeData.js";
 import { Articles } from "../models/Articles.js";
 import ResponseWrapper from "../models/ResponseWrapper.js";
 import { sanitizeArticle } from "../utils/security.js";
