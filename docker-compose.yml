@@ -41,7 +41,7 @@ services:
       PORT: 3000
       # MinIO 配置
       MINIO_ENDPOINT: minio
-      MINIO_PORT: 9000
+      MINIO_PORT: ${MINIO_PORT}
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
       MINIO_BUCKET: ${MINIO_BUCKET}
@@ -85,6 +85,13 @@ services:
     restart: always
     ports:
       - "80:80"
+    environment:
+      VITE_MINIO_ENDPOINT: minio
+      VITE_MINIO_PORT: ${MINIO_PORT}
+      VITE_MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      VITE_MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      VITE_MINIO_BUCKET: ${MINIO_BUCKET}
+
     depends_on:
       - backend
     networks:

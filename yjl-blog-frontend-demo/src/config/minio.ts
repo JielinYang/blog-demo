@@ -10,7 +10,6 @@ export interface MinioConfig {
   secretKey: string
   bucketName: string
   useSSL: boolean
-  protocol: string
 }
 
 // 从环境变量读取MinIO配置
@@ -20,7 +19,6 @@ export const minioConfig: MinioConfig = {
   secretKey: import.meta.env.VITE_MINIO_SECRET_KEY,
   bucketName: import.meta.env.VITE_MINIO_BUCKET,
   useSSL: import.meta.env.VITE_MINIO_USE_SSL === 'true',
-  protocol: import.meta.env.VITE_MINIO_PROTOCOL,
 }
 
 /**
@@ -28,9 +26,9 @@ export const minioConfig: MinioConfig = {
  * @returns MinIO基础URL
  */
 export const getMinioBaseUrl = (): string => {
-  const { protocol, endpoint, bucketName } = minioConfig
-  const port = import.meta.env.VITE_MINIO_PORT || '19000'
-  return `${protocol}://${endpoint}:${port}/${bucketName}`
+  const { endpoint, bucketName } = minioConfig
+  const port = import.meta.env.VITE_MINIO_PORT
+  return `${minioConfig.useSSL ? 'https' : 'http'}://${endpoint}:${port}/${bucketName}`
 }
 
 /**
