@@ -34,7 +34,7 @@ services:
       NODE_ENV: production
       DB_HOST: mysql
       DB_PORT: 3306
-      DB_NAME: ${MYSQL_DATABASE}
+      DB_DATABASE: ${MYSQL_DATABASE}
       DB_USER: ${MYSQL_USER}
       DB_PASSWORD: ${MYSQL_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
