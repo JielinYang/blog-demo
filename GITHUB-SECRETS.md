@@ -25,6 +25,7 @@
 | `MINIO_ACCESS_KEY` | MinIO 访问密钥 | `minio_access` | ⭐⭐ |
 | `MINIO_SECRET_KEY` | MinIO 密钥 | `minio_secret` | ⭐⭐ |
 | `MINIO_BUCKET` | MinIO 存储桶名 | `blog-images` | ⭐ |
+| `MINIO_PORT` | MinIO 端口 | `9000` | ⭐ |
 | `VITE_API_BASE_URL` | 前端 API 地址 | `/api` | ⭐⭐⭐ |
 
 ---

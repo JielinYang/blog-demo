@@ -85,12 +85,6 @@ services:
     restart: always
     ports:
       - "80:80"
-    environment:
-      VITE_MINIO_ENDPOINT: ${SERVER_HOST}
-      VITE_MINIO_PORT: ${MINIO_PORT}
-      VITE_MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      VITE_MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
-      VITE_MINIO_BUCKET: ${MINIO_BUCKET}
 
     depends_on:
       - backend

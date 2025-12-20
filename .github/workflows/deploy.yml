@@ -69,6 +69,11 @@ jobs:
           push: true
           build-args: |
             VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}
+            VITE_MINIO_ENDPOINT=${{ secrets.SERVER_HOST }}
+            VITE_MINIO_PORT=${{ secrets.MINIO_PORT }}
+            VITE_MINIO_ACCESS_KEY=${{ secrets.MINIO_ACCESS_KEY }}
+            VITE_MINIO_SECRET_KEY=${{ secrets.MINIO_SECRET_KEY }}
+            VITE_MINIO_BUCKET=${{ secrets.MINIO_BUCKET }}
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/blog-frontend:latest
             ${{ secrets.DOCKER_USERNAME }}/blog-frontend:${{ github.sha }}
