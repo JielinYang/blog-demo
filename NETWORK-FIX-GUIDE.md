@@ -3,6 +3,7 @@
 ## 🚨 问题描述
 
 **错误信息:**
+
 ```
 ❌ 数据库连接失败: connect EHOSTUNREACH 172.21.0.3:3306
 Error: connect EHOSTUNREACH 172.21.0.3:3306
@@ -10,6 +11,7 @@ code: 'EHOSTUNREACH'
 ```
 
 **错误含义:**
+
 - `EHOSTUNREACH` = 主机不可达
 - 后端容器无法访问 MySQL 容器
 
@@ -20,11 +22,13 @@ code: 'EHOSTUNREACH'
 可能的原因包括:
 
 1. **网络配置不一致**
+
    - 旧容器使用旧网络
    - 新容器使用新网络
    - 容器之间无法通信
 
 2. **网络名称冲突**
+
    - 你添加了 `name: blog-demo_blog-network`
    - 可能与现有网络冲突
 
@@ -168,7 +172,7 @@ docker-compose up -d
 ```yaml
 networks:
   blog-network:
-    name: blog-demo_blog-network  # 自定义名称
+    name: blog-demo_blog-network # 自定义名称
     driver: bridge
 ```
 
@@ -187,7 +191,7 @@ networks:
 ```yaml
 networks:
   blog-network:
-    name: blog-demo-network  # 使用连字符而非下划线
+    name: blog-demo-network # 使用连字符而非下划线
     driver: bridge
 ```
 
@@ -198,11 +202,13 @@ networks:
 修复后,按以下顺序验证:
 
 ### 1. 检查所有容器状态
+
 ```bash
 docker-compose ps
 ```
 
 应该看到:
+
 ```
 NAME            STATUS          PORTS
 blog-backend    Up (healthy)    0.0.0.0:3000->3000/tcp
@@ -212,11 +218,13 @@ blog-minio      Up (healthy)    0.0.0.0:9000-9001->9000-9001/tcp
 ```
 
 ### 2. 检查后端日志
+
 ```bash
 docker-compose logs backend | tail -20
 ```
 
 应该看到:
+
 ```
 ✓ 数据库连接成功
 ✓ 数据库检查通过
@@ -224,6 +232,7 @@ docker-compose logs backend | tail -20
 ```
 
 ### 3. 测试 API
+
 ```bash
 # 在服务器上测试
 curl http://localhost:3000/articles
@@ -233,6 +242,7 @@ curl http://www.fbranch.top/api/articles
 ```
 
 ### 4. 检查网络连通性
+
 ```bash
 # 所有容器应该在同一个网络
 docker network inspect blog-demo_blog-network --format '{{range $k, $v := .Containers}}{{$k}}: {{$v.Name}}{{"\n"}}{{end}}'
@@ -247,6 +257,7 @@ docker network inspect blog-demo_blog-network --format '{{range $k, $v := .Conta
 **原因:** 网络不存在
 
 **解决:**
+
 ```bash
 docker-compose down
 docker-compose up -d
@@ -257,6 +268,7 @@ docker-compose up -d
 **原因:** 旧网络还在
 
 **解决:**
+
 ```bash
 docker network rm blog-demo_blog-network
 docker-compose up -d
@@ -267,6 +279,7 @@ docker-compose up -d
 **原因:** MySQL 启动慢或配置错误
 
 **解决:**
+
 ```bash
 # 查看 MySQL 日志
 docker-compose logs mysql
@@ -287,11 +300,11 @@ docker exec blog-mysql env | grep MYSQL
 services:
   backend:
     networks:
-      - blog-network  # 确保所有服务都用这个
-  
+      - blog-network # 确保所有服务都用这个
+
   mysql:
     networks:
-      - blog-network  # 确保所有服务都用这个
+      - blog-network # 确保所有服务都用这个
 ```
 
 ### 2. 使用健康检查
@@ -302,7 +315,7 @@ services:
 backend:
   depends_on:
     mysql:
-      condition: service_healthy  # 等待健康检查通过
+      condition: service_healthy # 等待健康检查通过
 ```
 
 ### 3. 定期清理
@@ -319,22 +332,26 @@ docker network prune -f
 ## 🆘 如果仍然无法解决
 
 1. **查看完整日志:**
+
 ```bash
 docker-compose logs > debug.log
 cat debug.log
 ```
 
 2. **检查环境变量:**
+
 ```bash
-docker exec blog-backend env | grep DB_
+docker exec blog-backend env | grep MYSQL_
 ```
 
 3. **检查 .env 文件:**
+
 ```bash
 cat .env
 ```
 
 4. **重新部署:**
+
 ```bash
 git pull
 docker-compose down -v
@@ -344,6 +361,7 @@ docker-compose up -d --build
 ---
 
 **修复成功的标志:**
+
 - ✅ `docker-compose ps` 显示所有容器都是 `Up (healthy)`
 - ✅ 后端日志显示 `✓ 数据库连接成功`
 - ✅ 可以访问 `http://www.fbranch.top/api/articles`

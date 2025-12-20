@@ -44,7 +44,7 @@ services:
     network_mode: "host"
     ports: []
     environment:
-      DB_HOST: 127.0.0.1
+      MYSQL_HOST: 127.0.0.1
       MINIO_ENDPOINT: 127.0.0.1
 EOF
 

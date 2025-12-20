@@ -28,7 +28,7 @@ const loadEnvironmentConfig = () => {
 
   // 验证配置加载
   console.log("📊 配置验证:");
-  console.log("  - 数据库主机:", process.env.DB_HOST || "未设置");
+  console.log("  - 数据库主机:", process.env.MYSQL_HOST || "未设置");
   console.log("  - 应用端口:", process.env.PORT || "未设置");
   console.log("  - 当前环境:", process.env.NODE_ENV || "development");
   console.log(

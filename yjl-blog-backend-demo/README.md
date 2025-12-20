@@ -1,17 +1,17 @@
-# 博客后端API服务
+# 博客后端 API 服务
 
-基于Node.js + Express + MySQL的博客后端API服务，提供文章管理、分类管理、文件上传、用户认证等功能。
+基于 Node.js + Express + MySQL 的博客后端 API 服务，提供文章管理、分类管理、文件上传、用户认证等功能。
 
 ## 功能特性
 
 - ✅ **文章管理**: 文章的创建、编辑、删除、分页查询
 - ✅ **分类管理**: 分类的增删改查功能
 - ✅ **文件上传**: 支持单张和多张图片上传，包含文件验证
-- ✅ **MinIO存储**: 集成MinIO对象存储服务
-- ✅ **安全过滤**: HTML内容安全过滤，防止XSS攻击
+- ✅ **MinIO 存储**: 集成 MinIO 对象存储服务
+- ✅ **安全过滤**: HTML 内容安全过滤，防止 XSS 攻击
 - ✅ **文件验证**: 文件类型、大小、完整性验证
 - ✅ **接口限流**: 不同接口的访问频率限制
-- ✅ **用户认证**: JWT令牌认证，支持注册登录
+- ✅ **用户认证**: JWT 令牌认证，支持注册登录
 - ✅ **权限控制**: 基于角色的访问控制
 
 ## 技术栈
@@ -40,27 +40,29 @@ npm install
 cp .env.example .env
 ```
 
-编辑 `.env` 文件，设置数据库连接、JWT密钥、MinIO配置等。
+编辑 `.env` 文件，设置数据库连接、JWT 密钥、MinIO 配置等。
 
 ### 3. 配置数据库
 
-确保MySQL服务已启动，然后在 `.env` 中配置数据库连接信息。
+确保 MySQL 服务已启动，然后在 `.env` 中配置数据库连接信息。
 
 ### 4. 启动服务
 
 开发模式：
+
 ```bash
 npm run dev
 ```
 
 生产模式：
+
 ```bash
 npm start
 ```
 
 服务将在 `http://localhost:3000` 启动。
 
-## API接口文档
+## API 接口文档
 
 ### 认证接口
 
@@ -105,31 +107,31 @@ npm start
 
 ## 安全特性
 
-1. **内容安全过滤**: 使用DOMPurify清理HTML内容，防止XSS攻击
+1. **内容安全过滤**: 使用 DOMPurify 清理 HTML 内容，防止 XSS 攻击
 2. **文件上传验证**: 验证文件类型、大小、完整性和恶意内容
 3. **接口限流**: 不同接口设置不同的访问频率限制
-4. **JWT认证**: 基于令牌的用户认证机制
+4. **JWT 认证**: 基于令牌的用户认证机制
 5. **权限控制**: 管理员权限验证，保护敏感操作
-6. **密码安全**: 使用bcryptjs进行密码加密
+6. **密码安全**: 使用 bcryptjs 进行密码加密
 
 ## 环境配置
 
-| 变量名 | 说明 | 默认值 |
-|--------|------|--------|
-| NODE_ENV | 运行环境 | development |
-| PORT | 服务端口 | 3000 |
-| DB_HOST | 数据库主机 | localhost |
-| DB_PORT | 数据库端口 | 3306 |
-| DB_NAME | 数据库名称 | blog_db |
-| DB_USER | 数据库用户 | root |
-| DB_PASSWORD | 数据库密码 | - |
-| JWT_SECRET | JWT密钥 | - |
-| JWT_EXPIRES_IN | JWT过期时间 | 24h |
-| MINIO_ENDPOINT | MinIO服务地址 | localhost |
-| MINIO_PORT | MinIO服务端口 | 9000 |
-| MINIO_ACCESS_KEY | MinIO访问密钥 | - |
-| MINIO_SECRET_KEY | MinIO密钥 | - |
-| MINIO_BUCKET | MinIO存储桶 | blog-files |
+| 变量名           | 说明           | 默认值      |
+| ---------------- | -------------- | ----------- |
+| NODE_ENV         | 运行环境       | development |
+| PORT             | 服务端口       | 3000        |
+| MYSQL_HOST       | 数据库主机     | localhost   |
+| MYSQL_PORT       | 数据库端口     | 3306        |
+| MYSQL_DATABASE   | 数据库名称     | blog_db     |
+| MYSQL_USER       | 数据库用户     | root        |
+| MYSQL_PASSWORD   | 数据库密码     | -           |
+| JWT_SECRET       | JWT 密钥       | -           |
+| JWT_EXPIRES_IN   | JWT 过期时间   | 24h         |
+| MINIO_ENDPOINT   | MinIO 服务地址 | localhost   |
+| MINIO_PORT       | MinIO 服务端口 | 9000        |
+| MINIO_ACCESS_KEY | MinIO 访问密钥 | -           |
+| MINIO_SECRET_KEY | MinIO 密钥     | -           |
+| MINIO_BUCKET     | MinIO 存储桶   | blog-files  |
 
 ## 开发建议
 
@@ -140,9 +142,9 @@ npm start
 
 ## 注意事项
 
-1. 生产环境请修改JWT密钥和数据库密码
-2. MinIO配置需要先启动MinIO服务并创建存储桶
-3. 建议配置HTTPS和反向代理（如Nginx）
+1. 生产环境请修改 JWT 密钥和数据库密码
+2. MinIO 配置需要先启动 MinIO 服务并创建存储桶
+3. 建议配置 HTTPS 和反向代理（如 Nginx）
 4. 定期备份数据库和重要文件
 
 ## License
