@@ -141,7 +141,7 @@ import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { getLifeFragments, createLifeFragment, type LifeFragment } from '@/apis/lifeApi'
 import { useAuthStore } from '@/stores/auth'
-import { uploadImage } from '@/utils/upload-config'
+import { uploadLifeImage } from '@/utils/upload-config'
 
 const authStore = useAuthStore()
 
@@ -281,7 +281,7 @@ const beforeUpload = (file: File) => {
 
 const handleUpload = async (options: any) => {
   try {
-    const imageUrl = await uploadImage(options.file)
+    const imageUrl = await uploadLifeImage(options.file)
     newMemory.image = imageUrl
     ElMessage.success('图片上传成功')
   } catch (error) {

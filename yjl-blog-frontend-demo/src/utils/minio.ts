@@ -22,13 +22,20 @@ export const convertInternalUrlToExternal = (url: string): string => {
 }
 
 // 通过后端API上传文件到MinIO
-export const uploadToMinio = async (file: File): Promise<string> => {
+export const uploadToMinio = async (file: File, directory?: string): Promise<string> => {
   try {
     // 生成唯一文件名
     const timestamp = Date.now()
     const randomStr = Math.random().toString(36).substring(2, 10)
     const fileExt = file.name.split('.').pop() || 'jpg'
-    const fileName = `${timestamp}_${randomStr}.${fileExt}`
+    
+    // 构建完整文件名，包含目录路径
+    let fileName = `${timestamp}_${randomStr}.${fileExt}`
+    if (directory) {
+      // 确保目录路径以斜杠结尾
+      const normalizedDir = directory.endsWith('/') ? directory : directory + '/'
+      fileName = normalizedDir + fileName
+    }
 
     // 创建FormData
     const formData = new FormData()

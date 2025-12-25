@@ -4,7 +4,7 @@ import { uploadToMinio } from './minio'
 
 // 上传方式枚举（现在只支持MinIO）
 export enum UploadMethod {
-  MINIO = 'minio'
+  MINIO = 'minio',
 }
 
 // 当前使用的上传方式（固定为MinIO）
@@ -26,13 +26,19 @@ export const setUploadMethod = (method: UploadMethod): void => {
 }
 
 // 通用图片上传函数（现在只使用MinIO）
-export const uploadImage = async (file: File): Promise<string> => {
+export const uploadImage = async (file: File, directory?: string): Promise<string> => {
   try {
-    return await uploadToMinio(file)
+    return await uploadToMinio(file, directory)
   } catch (error) {
     console.error('图片上传失败:', error)
     throw error
   }
+}
+
+// 专门用于生活图片的上传函数
+export const uploadLifeImage = async (file: File): Promise<string> => {
+  const lifeDir = import.meta.env.VITE_MINIO_LIFE_DIR
+  return await uploadImage(file, lifeDir)
 }
 
 // 获取上传方式配置选项（现在只返回MinIO）
@@ -40,8 +46,8 @@ export const getUploadMethodOptions = () => [
   {
     label: 'MinIO',
     value: UploadMethod.MINIO,
-    description: '使用MinIO自建对象存储服务'
-  }
+    description: '使用MinIO自建对象存储服务',
+  },
 ]
 
 // 导出响应式变量供组件使用

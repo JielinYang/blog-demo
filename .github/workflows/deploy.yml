@@ -74,6 +74,7 @@ jobs:
             VITE_MINIO_ACCESS_KEY=${{ secrets.MINIO_ACCESS_KEY }}
             VITE_MINIO_SECRET_KEY=${{ secrets.MINIO_SECRET_KEY }}
             VITE_MINIO_BUCKET=${{ secrets.MINIO_BUCKET }}
+            VITE_MINIO_LIFE_DIR=${{ secrets.MINIO_LIFE_DIR }}
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/blog-frontend:latest
             ${{ secrets.DOCKER_USERNAME }}/blog-frontend:${{ github.sha }}
