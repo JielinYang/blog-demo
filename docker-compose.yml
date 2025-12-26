@@ -87,9 +87,9 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      # 挂载 SSL 证书
-      - ${SSL_CERT_PATH}:/etc/nginx/ssl/fbranch.top.pem:ro
-      - ${SSL_KEY_PATH}:/etc/nginx/ssl/fbranch.top.key:ro
+      # 挂载 SSL 证书（使用硬编码路径，因为环境变量在某些情况下不会被展开）
+      - /opt/ssl/fbranch.top.pem:/etc/nginx/ssl/fbranch.top.pem:ro
+      - /opt/ssl/fbranch.top.key:/etc/nginx/ssl/fbranch.top.key:ro
 
     depends_on:
       - backend
