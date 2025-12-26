@@ -85,6 +85,11 @@ services:
     restart: always
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      # 挂载 SSL 证书
+      - ${SSL_CERT_PATH}:/etc/nginx/ssl/fbranch.top.crt:ro
+      - ${SSL_KEY_PATH}:/etc/nginx/ssl/fbranch.top.key:ro
 
     depends_on:
       - backend

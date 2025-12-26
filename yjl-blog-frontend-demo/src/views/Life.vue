@@ -109,7 +109,7 @@
     <el-dialog
       v-model="showDetailModal"
       :title="formatDate(currentMemory?.time)"
-      width="400px"
+      width="600px"
       custom-class="glass-modal"
     >
       <div v-if="currentMemory" class="memory-detail">
@@ -812,9 +812,14 @@ onBeforeUnmount(() => {
 }
 
 .memory-img {
+  width: 100%;
   max-width: 100%;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  max-height: 600px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  object-fit: contain;
+  margin: 0 auto;
+  display: block;
 }
 
 .life-upload {
