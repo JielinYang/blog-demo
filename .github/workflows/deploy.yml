@@ -123,6 +123,10 @@ jobs:
             MINIO_SECRET_KEY=${{ secrets.MINIO_SECRET_KEY }}
             MINIO_BUCKET=${{ secrets.MINIO_BUCKET }}
             MINIO_PORT=${{ secrets.MINIO_PORT }}
+
+            # SSL 证书配置
+            SSL_CERT_PATH=${{ secrets.SSL_CERT_PATH }}
+            SSL_KEY_PATH=${{ secrets.SSL_KEY_PATH }}
             EOF
 
             # 拉取最新镜像
