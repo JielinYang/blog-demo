@@ -23,12 +23,15 @@ export const minioConfig: MinioConfig = {
 
 /**
  * 获取MinIO基础URL
+ * 使用 Nginx 反向代理路径，避免 Mixed Content 错误
  * @returns MinIO基础URL
  */
 export const getMinioBaseUrl = (): string => {
-  const { endpoint, bucketName } = minioConfig
-  const port = import.meta.env.VITE_MINIO_PORT
-  return `${minioConfig.useSSL ? 'https' : 'http'}://${endpoint}:${port}/${bucketName}`
+  const { bucketName } = minioConfig
+  // 使用当前页面的协议和主机名，通过 /minio/ 路径代理访问 MinIO
+  // 这样 HTTPS 页面会使用 HTTPS 访问图片，避免 Mixed Content 错误
+  const baseUrl = `${window.location.protocol}//${window.location.host}/minio/${bucketName}`
+  return baseUrl
 }
 
 /**
