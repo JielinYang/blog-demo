@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { saveArticle } from '@/apis/articles'
 import { getCategories, getArticles } from '@/apis/articles'
+import { getDefaultCoverImages, getDefaultCoverImageUrl } from '@/config/minio'
 import type { Article } from '@/models/Article'
 
 export const useArticleStore = defineStore('article', () => {
@@ -37,6 +38,14 @@ export const useArticleStore = defineStore('article', () => {
     // 生成摘要
     if (!description.value) {
       generateDescription()
+    }
+
+    // 如果没有封面图，设置默认封面图
+    if (!coverUrl.value) {
+      const defaultImages = getDefaultCoverImages()
+      const randomIndex = Math.floor(Math.random() * defaultImages.length)
+      const fileName = defaultImages[randomIndex]
+      coverUrl.value = getDefaultCoverImageUrl(fileName)
     }
 
     return {

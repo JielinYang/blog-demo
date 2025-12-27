@@ -103,15 +103,14 @@
         <!-- Markdown 文件上传器 -->
         <div v-loading="isLoading" element-loading-text="正在加载文章内容...">
           <MarkdownUploader
-            v-if="!isEditMode"
             v-model="article.content"
             @metadata-parsed="handleMetadataParsed"
           />
-          <div v-else class="edit-mode-notice">
+          <div v-if="isEditMode" class="edit-mode-notice">
             <el-alert
               title="编辑模式"
               type="info"
-              description="当前为编辑模式,不支持重新上传 Markdown 文件。如需修改内容,请删除后重新创建。"
+              description="您可以上传新的 Markdown 文件来覆盖当前内容，或者直接修改元数据。"
               :closable="false"
               show-icon
             />

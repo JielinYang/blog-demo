@@ -46,6 +46,9 @@
                 </el-text>
               </div>
               <div class="article-actions" v-if="authStore.isAdmin">
+                <el-button type="primary" size="small" @click="editArticle">
+                  <el-icon><Edit /></el-icon>编辑
+                </el-button>
                 <el-button type="danger" size="small" @click="deleteArticle">
                   <el-icon><Delete /></el-icon>删除
                 </el-button>
@@ -65,16 +68,23 @@
         <aside class="toc-sidebar" v-if="tocItems.length > 0">
           <TableOfContents :toc-items="tocItems" />
         </aside>
+        <!-- 图片预览组件 -->
+        <el-image-viewer
+          v-if="showViewer"
+          :url-list="previewUrlList"
+          :initial-index="initialIndex"
+          @close="showViewer = false"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ArrowLeft, View, Clock, Delete, ChatDotRound, Star } from '@element-plus/icons-vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ArrowLeft, View, Clock, Delete, ChatDotRound, Star, Edit } from '@element-plus/icons-vue'
+import { ElMessage, ElMessageBox, ElImageViewer } from 'element-plus'
 import { getArticleDetail, deleteArticle as deleteArticleApi } from '@/apis/articles'
 import { useAuthStore } from '@/stores/auth'
 import { Article } from '@/models/Article'
@@ -90,6 +100,11 @@ const articleId = route.params.id as string
 
 const article = ref<Article | null>(null)
 const tocItems = ref<TocItem[]>([])
+
+// 图片预览状态
+const showViewer = ref(false)
+const previewUrlList = ref<string[]>([])
+const initialIndex = ref(0)
 
 // 星空粒子系统
 const stars = ref<
@@ -212,6 +227,11 @@ const formatDate = (dateString?: string) => {
   }
 }
 
+// 编辑文章
+const editArticle = () => {
+  router.push(`/article/write?id=${articleId}`)
+}
+
 // 删除文章
 const deleteArticle = async () => {
   try {
@@ -232,18 +252,53 @@ const deleteArticle = async () => {
   }
 }
 
+// 处理图片点击
+const handleImageClick = (e: Event) => {
+  const target = e.target as HTMLImageElement
+  if (target.tagName === 'IMG' && target.closest('.markdown-content')) {
+    const src = target.src
+    const index = previewUrlList.value.indexOf(src)
+    if (index !== -1) {
+      initialIndex.value = index
+      showViewer.value = true
+    }
+  }
+}
+
+// 提取所有图片链接
+const extractImages = () => {
+  const content = document.querySelector('.markdown-content')
+  if (content) {
+    const images = content.querySelectorAll('img')
+    previewUrlList.value = Array.from(images).map((img) => img.src)
+    
+    // 添加点击事件监听
+    content.addEventListener('click', handleImageClick)
+  }
+}
+
 onMounted(() => {
   // 初始化星空粒子
   createStars()
   window.addEventListener('resize', handleResize)
 
-  fetchArticleDetail()
+  fetchArticleDetail().then(() => {
+    // 等待 DOM 更新后提取图片
+    nextTick(() => {
+      extractImages()
+    })
+  })
   // 页面加载后滚动到顶部
   window.scrollTo(0, 0)
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
+  // 移除图片点击事件监听
+  const content = document.querySelector('.markdown-content')
+  if (content) {
+    content.removeEventListener('click', handleImageClick)
+  }
 })
 </script>
 
