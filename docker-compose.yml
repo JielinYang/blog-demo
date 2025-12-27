@@ -46,6 +46,8 @@ services:
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
       MINIO_BUCKET: ${MINIO_BUCKET}
       MINIO_USE_SSL: false
+      # MinIO 公开访问 URL（用于生成前端可访问的图片 URL）
+      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL}
     depends_on:
       mysql:
         condition: service_healthy

@@ -70,7 +70,17 @@ const initMinio = async () => {
 
 // 获取文件访问URL
 export const getFileUrl = (fileName) => {
-  return `http://${minioConfig.endPoint}:${minioConfig.port}/${minioConfig.bucketName}/${fileName}`;
+  // 优先使用公开访问 URL（用于前端访问，通过 Nginx 代理）
+  const publicUrl = process.env.MINIO_PUBLIC_URL;
+  
+  if (publicUrl) {
+    // 使用配置的公开 URL（通过 Nginx 代理）
+    return `${publicUrl}/${minioConfig.bucketName}/${fileName}`;
+  }
+  
+  // 降级方案：使用内部 MinIO 地址（仅用于后端内部访问）
+  const protocol = minioConfig.useSSL ? 'https' : 'http';
+  return `${protocol}://${minioConfig.endPoint}:${minioConfig.port}/${minioConfig.bucketName}/${fileName}`;
 };
 
 export { minioClient, minioConfig, initMinio };
