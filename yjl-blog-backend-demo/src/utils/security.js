@@ -156,9 +156,13 @@ export function sanitizeArticle(article) {
   }
 
   // 清理内容
-  if (sanitized.content) {
-    sanitized.content = sanitizeHTML(sanitized.content);
-  }
+  // 注意：对于 Markdown 内容，不应该运行 sanitizeHTML
+  // Markdown 内容会在前端渲染时由 markdown-it 安全处理
+  // sanitizeHTML 会破坏 Markdown 语法（如代码块、特殊字符等）
+  // 仅对明确的 HTML 内容（如富文本编辑器输出）进行清理
+  // if (sanitized.content) {
+  //   sanitized.content = sanitizeHTML(sanitized.content);
+  // }
 
   // 清理标签
   if (sanitized.tags) {

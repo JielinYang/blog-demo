@@ -91,12 +91,17 @@ export interface TocItem {
 }
 
 export function extractTOC(markdown: string): TocItem[] {
+  // 先移除代码块，避免将代码中的 # 注释误识别为标题
+  // 匹配 ``` 或 ~~~ 包裹的代码块
+  const codeBlockRegex = /```[\s\S]*?```|~~~[\s\S]*?~~~/g
+  const markdownWithoutCode = markdown.replace(codeBlockRegex, '')
+
   const headingRegex = /^(#{1,6})\s+(.+)$/gm
   const toc: TocItem[] = []
   const stack: TocItem[] = []
   let match
 
-  while ((match = headingRegex.exec(markdown)) !== null) {
+  while ((match = headingRegex.exec(markdownWithoutCode)) !== null) {
     const level = match[1].length
     const text = match[2].trim()
     const anchor = text
