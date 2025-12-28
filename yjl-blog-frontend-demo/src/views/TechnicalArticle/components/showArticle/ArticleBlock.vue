@@ -170,6 +170,15 @@ const getStatusType = (status: number = 0) => {
   }
 }
 
+@media (max-width: 1366px) {
+  .article-container {
+    height: 180px;
+    min-height: 180px;
+    max-height: 180px;
+  }
+}
+
+
 .article-layout {
   display: flex;
   gap: 0;
@@ -187,6 +196,14 @@ const getStatusType = (status: number = 0) => {
   position: relative;
   padding: 20px;
 }
+
+@media (max-width: 1366px) {
+  .cover-image-container {
+    width: 200px;
+    padding: 15px;
+  }
+}
+
 
 .cover-image {
   width: 100%;
@@ -231,6 +248,13 @@ const getStatusType = (status: number = 0) => {
   justify-content: space-between;
 }
 
+@media (max-width: 1366px) {
+  .article-content-container {
+    padding: 16px 20px;
+  }
+}
+
+
 .article-title {
   font-size: 26px;
   font-weight: 600;
@@ -241,6 +265,13 @@ const getStatusType = (status: number = 0) => {
   margin-bottom: 4px;
   letter-spacing: 0.3px;
 }
+
+@media (max-width: 1366px) {
+  .article-title {
+    font-size: 20px;
+  }
+}
+
 
 .article-status {
   display: inline-block;

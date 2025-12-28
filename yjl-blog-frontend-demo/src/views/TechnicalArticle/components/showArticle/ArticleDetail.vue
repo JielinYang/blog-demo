@@ -320,6 +320,13 @@ onUnmounted(() => {
   overflow: hidden;
 }
 
+@media (max-width: 1366px) {
+  .article-detail-wrapper {
+    padding-top: 80px;
+  }
+}
+
+
 /* 星空粒子容器 */
 .stars-container {
   position: fixed;
@@ -381,6 +388,14 @@ onUnmounted(() => {
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #e2e8f0;
 }
+
+@media (max-width: 1366px) {
+  .box-card {
+    width: 95%;
+    max-width: 800px;
+  }
+}
+
 
 .toc-sidebar {
   width: 280px;
@@ -467,6 +482,13 @@ onUnmounted(() => {
   font-weight: bold;
   color: #fff;
 }
+
+@media (max-width: 1366px) {
+  .meta-title {
+    font-size: 28px;
+  }
+}
+
 
 .article-content {
   line-height: 1.8;

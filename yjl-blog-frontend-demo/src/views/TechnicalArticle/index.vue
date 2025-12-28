@@ -19,7 +19,12 @@
     </div>
 
     <el-container class="out-list-contaier">
-      <el-button class="write-article-btn" type="primary" @click="goToWriteArticle">
+      <el-button
+        v-if="authStore.isAdmin"
+        class="write-article-btn"
+        type="primary"
+        @click="goToWriteArticle"
+      >
         <el-icon><Edit /></el-icon>
         <span>写文章</span>
       </el-button>
@@ -76,6 +81,10 @@ import type { Article } from '@/models/Article'
 import router from '@/router'
 import { ElButton, ElSkeleton, ElEmpty } from 'element-plus'
 import { Edit } from '@element-plus/icons-vue'
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
+
 
 // 星空粒子系统
 const stars = ref<
@@ -374,6 +383,25 @@ const enter = (el: Element, done: () => void) => {
   max-width: 900px;
   z-index: 100;
 }
+
+@media (max-width: 1366px) {
+  .out-list-contaier {
+    padding-top: 80px;
+    gap: 20px;
+  }
+
+  .article-list-contaier {
+    max-width: 800px;
+    padding: 0 20px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .article-list-contaier {
+    max-width: 100%;
+  }
+}
+
 
 .write-article-btn {
   position: fixed;
